@@ -1,0 +1,233 @@
+/* ============================================================
+   Multiverse — Android Landscape (واجهة أندرويد بالعرض)
+   مفعّل تلقائيًا لما html يكون عليه class "is-android".
+
+   الفكرة (مستوحاة من Hearthstone / UNO Mobile):
+   - القبضة (اليد) شريط مدمج تحت، أي كارت بتضغط عليه يطلّع
+     نسخة كبيرة تقراها في نص الشاشة (معاينة).
+   - الكروت اللي بتختارها بتطير في "درج اختيار" كبير فوق اليد
+     وبه زرار لعب، فمفيش حاجة صغيرة ولا حاجة متزحمة.
+   - مقعدي أنت مبينا في شارة صغيرة تحت شمال بدل مقعد كبير.
+   - منطقة المعركة مختفية خالص (كل المعلومات في الشريط العلوي).
+   ============================================================ */
+
+html.is-android {
+  --card-w: 102px;
+  --card-h: 150px;
+  --radius: 12px;
+  --shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+
+html.is-android body {
+  min-width: 0;
+  min-height: 100vh;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+html.is-android ::-webkit-scrollbar { width: 5px; height: 5px; }
+html.is-android ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+
+/* ===== القوائم (Menu) — مدمجة وعالية للّمس ===== */
+html.is-android .menu-box {
+  width: min(540px, 96vw);
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: 20px 22px;
+  gap: 11px;
+  border-radius: 18px;
+}
+html.is-android .logo { font-size: 40px; letter-spacing: 1px; }
+html.is-android .logo-sub { font-size: 13px; letter-spacing: 1px; }
+html.is-android h2 { font-size: 21px; }
+html.is-android .tagline { font-size: 13px; }
+html.is-android .rules-hint { font-size: 12.5px; max-height: 160px; }
+
+html.is-android .btn { min-height: 48px; font-size: 16px; padding: 12px 20px; border-radius: 12px; }
+html.is-android .btn-primary { min-height: 50px; }
+html.is-android .btn-small { min-height: 38px; font-size: 13px; padding: 8px 14px; }
+html.is-android .btn-icon { width: 42px; height: 42px; }
+html.is-android .btn-icon .ic { width: 20px; height: 20px; }
+
+html.is-android .field span { font-size: 13px; }
+html.is-android input, html.is-android select {
+  padding: 12px 13px;
+  font-size: 15px;
+  min-height: 46px;
+}
+html.is-android .tabs { border-radius: 12px; }
+html.is-android .tab { padding: 10px; font-size: 14px; border-radius: 9px; }
+html.is-android .seg button { padding: 11px; font-size: 15px; }
+
+html.is-android .code { font-size: 30px; letter-spacing: 8px; padding: 6px 16px; }
+html.is-android .player-row { padding: 10px 12px; }
+html.is-android .player-row span { font-size: 14px; }
+
+html.is-android .avatar-grid { gap: 6px; }
+html.is-android .avatar-opt { width: 46px; height: 46px; border-radius: 10px; }
+
+/* ===== الشريط العلوي (topbar) ===== */
+html.is-android #screen-game .topbar { height: 44px; padding: 4px 10px; gap: 8px; }
+html.is-android #table { inset: 44px 0 0; }
+html.is-android .tb-item { font-size: 12px; }
+html.is-android .tb-item.tb-type { font-size: 13px; min-width: 80px; }
+html.is-android #tb-status { font-size: 12px; font-weight: 900; }
+html.is-android .tb-decks { display: none; }
+html.is-android .tb-actions { gap: 6px; }
+html.is-android .tb-actions .btn-icon { width: 34px; height: 34px; }
+html.is-android .tb-actions .btn-small { min-height: 34px; }
+
+/* ===== المقاعد: الخصوم فوق فقط، ومقعدي مخفي (شارة تحت شمال) ===== */
+html.is-android .seat { width: 148px; }
+html.is-android #seats .seat.you { display: none; }
+html.is-android #seats .seat:not(.you) { top: 1% !important; bottom: auto !important; }
+html.is-android .seat-inner { padding: 6px 10px; gap: 7px; }
+html.is-android .player-avatar,
+html.is-android .player-avatar-img { width: 30px; height: 30px; font-size: 14px; border-radius: 8px; }
+html.is-android .seat .name { font-size: 12.5px; }
+html.is-android .seat .sub { font-size: 10px; }
+html.is-android .pips { gap: 3px; margin-top: 2px; }
+html.is-android .pips .pip { width: 9px; height: 9px; border-radius: 3px; }
+html.is-android .seat-play { min-height: 20px; margin-top: 2px; gap: 3px; }
+html.is-android .seat-play .mini { width: 14px; height: 19px; border-radius: 3px; }
+html.is-android .seat-play .mini.reveal-face span { font-size: 8px; }
+
+/* ===== الشارة بتاعتي (نقطة، نقاطي الكسب) ===== */
+html.is-android #my-badge {
+  position: absolute; left: 12px; bottom: 12px; z-index: 21;
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--gold); border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 6px 10px;
+}
+html.is-android .mb-inner { display: flex; align-items: center; gap: 8px; }
+html.is-android .mb-inner .player-avatar,
+html.is-android .mb-inner .player-avatar-img { width: 22px; height: 22px; font-size: 12px; border-radius: 7px; border-color: var(--gold); }
+html.is-android .mb-info { display: flex; flex-direction: column; gap: 2px; }
+html.is-android .mb-name { font-size: 11px; font-weight: 900; color: #fff; white-space: nowrap; }
+html.is-android .mb-info .pips { margin: 0; }
+
+/* ===== منطقة المعركة: مختفية خالص ===== */
+html.is-android #battle-area { display: none; }
+html.is-android #action-bar { gap: 8px; padding: 8px 12px; }
+html.is-android #action-bar .hint { font-size: 11px; max-width: 150px; }
+html.is-android #play-hint { font-size: 11px; }
+
+/* ===== اختيار نوع الجولة ===== */
+html.is-android #type-picker { padding: 16px 22px; border-radius: 16px; }
+html.is-android #type-picker h3 { font-size: 18px; margin-bottom: 12px; }
+html.is-android .stat-cards { gap: 10px; }
+html.is-android .stat-btn { padding: 13px 15px; font-size: 14px; border-radius: 13px; gap: 5px; }
+html.is-android .stat-btn .stat-icon { width: 26px; height: 26px; }
+
+/* ===== اليد (القبضة) — شريط مدمج وسط الأسفل ===== */
+html.is-android #hand-wrap {
+  left: 64px; right: 64px; transform: none; bottom: 6px; max-width: none;
+}
+html.is-android #hand .card { margin: 0 -12px; border-radius: 9px; }
+html.is-android #hand .card:hover { transform: translateY(-6px); }
+html.is-android #hand .card.sel { transform: translateY(-12px); }
+html.is-android #hand .card.sel:hover { transform: translateY(-12px) scale(1.04); }
+html.is-android #hand .card .card-info { padding: 24px 6px 6px; }
+html.is-android #hand .card .card-name { font-size: 11.5px; padding: 2px 4px; }
+html.is-android #hand .card .card-stats { gap: 3px; margin-bottom: 4px; }
+html.is-android #hand .card .card-stats .st b { font-size: 13px; }
+html.is-android #hand .card .card-stats .st small { font-size: 8px; }
+html.is-android #hand .card .card-bonus { width: 20px; height: 20px; font-size: 10px; top: 4px; left: 4px; }
+html.is-android #hand .card .card-special-badge,
+html.is-android #hand .card .card-rarity-badge,
+html.is-android #hand .card .card-forced-badge,
+html.is-android #hand .card .card-frozen-badge { font-size: 8px; padding: 1px 5px; top: 4px; right: 4px; }
+html.is-android #hand .card .card-special-badge { top: 22px; }
+html.is-android #hand .card .card-img-fallback { font-size: 20px; }
+
+/* ===== زرار اللعب — يجيب لوحده في الزاوية الحرة فوق اليد ===== */
+html.is-android #play-pill {
+  position: absolute; right: 12px; bottom: 168px; z-index: 26;
+  display: flex; justify-content: flex-end;
+}
+html.is-android #play-pill .btn { min-height: 46px; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5); }
+
+/* ===== معاينة الكارت الكبير ===== */
+html.is-android #card-preview {
+  position: fixed; inset: 0; z-index: 70; background: rgba(5, 7, 14, 0.82);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+html.is-android #card-preview.hidden { display: none; }
+html.is-android .pv-body {
+  display: flex; align-items: center; justify-content: center; gap: 22px;
+  max-width: 92vw;
+}
+html.is-android .pv-body > .card { flex-shrink: 0; }
+html.is-android .pv-meta { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 46vw; }
+html.is-android .pv-name { font-size: 20px; font-weight: 900; color: #fff; text-align: center; font-family: 'Cairo', 'Almarai', sans-serif; }
+html.is-android .pv-sub { font-size: 13px; font-weight: 700; color: var(--text-dim); text-align: center; line-height: 1.6; }
+html.is-android .pv-sub.pv-rarity { color: var(--gold); }
+html.is-android .pv-sub.pv-frozen { color: #7fd4ff; }
+html.is-android .pv-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+html.is-android .pv-go { min-height: 46px; }
+html.is-android .pv-back { min-height: 46px; }
+
+/* ===== الأوفرايز ===== */
+html.is-android .overlay { padding: 12px; gap: 10px; }
+html.is-android .overlay h2 { font-size: 24px; }
+html.is-android .reveal-row { padding: 8px 12px; gap: 8px; width: min(660px, 96vw); border-radius: 12px; }
+html.is-android .reveal-row .name { width: 76px; font-size: 12px; }
+html.is-android .reveal-row .cards { gap: 5px; }
+html.is-android .reveal-row .total { font-size: 20px; min-width: 52px; }
+html.is-android .reveal-mini { width: 30px; height: 44px; border-radius: 6px; }
+html.is-android .reveal-mini .front { font-size: 10px; }
+html.is-android .reveal-row .badge { font-size: 11px; padding: 3px 9px; }
+
+html.is-android .swap-box, html.is-android .phase-box { padding: 16px 20px; gap: 11px; border-radius: 18px; }
+html.is-android .swap-box h3 { font-size: 20px; }
+html.is-android .swap-box .sub, html.is-android .phase-box .sub { font-size: 12.5px; }
+html.is-android .swap-hand { gap: 8px; }
+html.is-android .swap-hand .card { --card-w: 116px; --card-h: 170px; margin: 0 -6px; }
+html.is-android .phase-box h2 { font-size: 22px; }
+html.is-android .phase-box h3 { font-size: 17px; }
+html.is-android .phase-actions .btn { min-height: 44px; }
+html.is-android .phase-targets .btn { min-height: 46px; }
+
+html.is-android .riddler-peek { gap: 8px; padding: 8px 10px; width: min(320px, 92vw); }
+html.is-android .riddler-peek .name { width: 64px; font-size: 12px; }
+html.is-android .riddler-peek .card .card-name { font-size: 10px; }
+
+/* ===== التوست ===== */
+html.is-android #toast { top: 54px; right: 14px; font-size: 13px; padding: 9px 18px; }
+
+/* ===== الشات: فوق تحت الشمال، السجل تحت اليمين ===== */
+html.is-android #chat-btn { top: 54px; left: 12px; bottom: auto; width: 44px; height: 44px; font-size: 20px; }
+html.is-android #log-btn { bottom: 70px; right: 14px; width: 44px; height: 44px; }
+
+html.is-android #chat-panel {
+  left: 14px; bottom: 68px;
+  width: min(330px, calc(100vw - 28px));
+  height: min(430px, calc(100vh - 80px));
+  border-radius: 14px;
+}
+html.is-android #log-panel {
+  right: 14px; bottom: 68px;
+  width: min(320px, calc(100vw - 28px));
+  height: min(390px, calc(100vh - 80px));
+  border-radius: 14px;
+}
+html.is-android .chat-head, html.is-android .log-head { padding: 9px 12px; }
+html.is-android .chat-input-row input { min-height: 42px; font-size: 15px; }
+html.is-android .chat-send { min-height: 42px; }
+html.is-android .chat-emoji-toggle { width: 42px; }
+html.is-android .chat-bubble { font-size: 13px; }
+html.is-android .chat-bubble.emoji { font-size: 32px; }
+html.is-android .chat-emoji { width: 38px; height: 38px; font-size: 22px; }
+html.is-android .chat-msgs { padding: 8px; }
+html.is-android .chat-meme-btn { min-height: 48px; font-size: 12px; }
+
+/* ===== بانر المتفرج ===== */
+html.is-android #spectate-banner { bottom: 170px; font-size: 13px; padding: 10px 16px; gap: 9px; }
+
+/* ===== تحسين الشاشات الصغيرة جدًا ===== */
+@media (orientation: portrait) and (max-width: 820px) {
+  html.is-android body { overflow: hidden; }
+  html.is-android .menu-box { width: 96vw; max-height: 96vh; }
+}

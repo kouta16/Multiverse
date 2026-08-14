@@ -1,0 +1,9 @@
+{
+  "appId": "com.multiverse.game",
+  "appName": "مالتيفرس (تجريب)",
+  "webDir": "web",
+  "server": {
+    "url": "http://127.0.0.1:3000",
+    "cleartext": true
+  }
+}

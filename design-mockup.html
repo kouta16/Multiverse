@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تصميم Multiverse - معاينة</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+    
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #1a0f0a;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: 
+        radial-gradient(ellipse at center, rgba(139, 90, 43, 0.3) 0%, transparent 70%),
+        linear-gradient(180deg, #2d1810 0%, #1a0f0a 100%);
+      overflow: hidden;
+    }
+    
+    /* Wood texture overlay */
+    .game-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 50px,
+          rgba(0,0,0,0.1) 50px,
+          rgba(0,0,0,0.1) 51px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 20px,
+          rgba(139, 90, 43, 0.05) 20px,
+          rgba(139, 90, 43, 0.05) 21px
+        );
+      pointer-events: none;
+    }
+    
+    /* Ambient lights */
+    .lights {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      z-index: 10;
+    }
+    
+    .light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffd700;
+      box-shadow: 
+        0 0 10px #ffd700,
+        0 0 20px #ffa500,
+        0 0 30px #ff8c00;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    .light:nth-child(odd) { animation-delay: 0.5s; }
+    
+    @keyframes glow {
+      from { opacity: 0.7; transform: scale(1); }
+      to { opacity: 1; transform: scale(1.1); }
+    }
+    
+    /* Table */
+    .table {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 320px;
+      background: 
+        radial-gradient(ellipse at center, #2d5a3d 0%, #1e3d2a 100%);
+      border-radius: 20px;
+      border: 12px solid #5c3a1e;
+      box-shadow: 
+        0 10px 40px rgba(0,0,0,0.5),
+        inset 0 2px 10px rgba(255,255,255,0.1);
+    }
+    
+    .table::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+    
+    /* Center text */
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(255,255,255,0.3);
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+    
+    /* Player seats */
+    .seat {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .seat-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5a2b 0%, #5c3a1e 100%);
+      border: 4px solid #d4a574;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    
+    .seat-avatar.active {
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .seat-name {
+      color: #f5deb3;
+      font-size: 14px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
+      padding: 4px 12px;
+      border-radius: 10px;
+    }
+    
+    .seat-points {
+      color: #ffd700;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .seat-cards {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .mini-card {
+      width: 20px;
+      height: 28px;
+      background: linear-gradient(135deg, #fff 0%, #e8e8e8 100%);
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Positions */
+    .seat.top { top: 30px; left: 50%; transform: translateX(-50%); }
+    .seat.top-left { top: 80px; left: 60px; }
+    .seat.top-right { top: 80px; right: 60px; }
+    .seat.bottom-left { bottom: 180px; left: 40px; }
+    
+    /* Player hand (bottom) */
+    .hand-container {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    
+    .hand-card {
+      width: 80px;
+      height: 120px;
+      background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+      border-radius: 8px;
+      border: 3px solid #ddd;
+      box-shadow: 
+        0 4px 15px rgba(0,0,0,0.3),
+        inset 0 1px 3px rgba(255,255,255,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .hand-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      border-color: #ffd700;
+    }
+    
+    .hand-card.selected {
+      transform: translateY(-20px);
+      border-color: #4CAF50;
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+    
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+    
+    .card-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+    }
+    
+    .card-stat {
+      font-size: 9px;
+      color: #666;
+      margin-top: 3px;
+    }
+    
+    /* Stats panel */
+    .stats-panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 15px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 2px solid rgba(255,215,0,0.3);
+    }
+    
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f5deb3;
+      font-size: 14px;
+    }
+    
+    .stat-label {
+      color: #aaa;
+      font-size: 12px;
+    }
+    
+    .stat-value {
+      color: #ffd700;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    
+    /* Phase indicator */
+    .phase-indicator {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      background: rgba(139, 90, 43, 0.8);
+      border-radius: 15px;
+      padding: 12px 20px;
+      border: 2px solid #d4a574;
+    }
+    
+    .phase-title {
+      color: #ffd700;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    
+    .phase-sub {
+      color: #f5deb3;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    
+    .timer {
+      color: #ff6b6b;
+      font-weight: 700;
+      font-size: 20px;
+      margin-top: 5px;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+      color: #1a0f0a;
+      box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 165, 0, 0.5);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #f5deb3;
+      border: 2px solid #d4a574;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .action-buttons {
+      position: absolute;
+      bottom: 160px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+    }
+    
+    /* Round info */
+    .round-info {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      border-radius: 10px;
+      padding: 8px 20px;
+      display: flex;
+      gap: 20px;
+      border: 2px solid rgba(255,215,0,0.3);
+    }
+    
+    .round-stat {
+      text-align: center;
+    }
+    
+    .round-stat .label {
+      color: #aaa;
+      font-size: 10px;
+    }
+    
+    .round-stat .value {
+      color: #ffd700;
+      font-size: 18px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Ambient lights -->
+    <div class="lights">
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+    </div>
+    
+    <!-- Table -->
+    <div class="table">
+      <div class="center-text">MultiVerse</div>
+    </div>
+    
+    <!-- Player seats -->
+    <div class="seat top">
+      <div class="seat-avatar">🎭</div>
+      <div class="seat-name">فرفور</div>
+      <div class="seat-points">5 نقاط</div>
+      <div class="seat-cards">
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+      </div>
+    </div>
+    
+    <div class="seat top-left">
+      <div class="seat-avatar active">🃏</div>
+      <div class="seat-name">مصطفى</div>
+      <div class="seat-points">3 نقاط</div>
+      <div class="seat-cards">
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+      </div>
+    </div>
+    
+    <div class="seat top-right">
+      <div class="seat-avatar">🎭</div>
+      <div class="seat-name">محمود</div>
+      <div class="seat-points">6 نقاط</div>
+      <div class="seat-cards">
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+        <div class="mini-card"></div>
+      </div>
+    </div>
+    
+    <!-- Player hand -->
+    <div class="hand-container">
+      <div class="hand-card">
+        <div class="card-icon">⚡</div>
+        <div class="card-name">باتمان</div>
+        <div class="card-stat">هجوم: 85</div>
+      </div>
+      <div class="hand-card">
+        <div class="card-icon">🦸</div>
+        <div class="card-name">سبورمان</div>
+        <div class="card-stat">دفاع: 92</div>
+      </div>
+      <div class="hand-card selected">
+        <div class="card-icon">🏴</div>
+        <div class="card-name">فلش</div>
+        <div class="card-stat">سرعة: 95</div>
+      </div>
+      <div class="hand-card">
+        <div class="card-icon">🔮</div>
+        <div class="card-name">لوكي</div>
+        <div class="card-stat">خاص: سرقة</div>
+      </div>
+      <div class="hand-card">
+        <div class="card-icon">⚡</div>
+        <div class="card-name">ثانوس</div>
+        <div class="card-stat">قوة: 88</div>
+      </div>
+    </div>
+    
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-secondary">تخطي</button>
+      <button class="btn btn-primary">استخدم كارت</button>
+    </div>
+    
+    <!-- Stats panel -->
+    <div class="stats-panel">
+      <div class="stat-row">
+        <span class="stat-label">النوع</span>
+        <span class="stat-value">هجوم</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">الدور</span>
+        <span class="stat-value">أنت</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">الباقي</span>
+        <span class="stat-value">12 كارت</span>
+      </div>
+    </div>
+    
+    <!-- Phase indicator -->
+    <div class="phase-indicator">
+      <div class="phase-title">مرحلة قبل الراوند</div>
+      <div class="phase-sub">دورك! في كارت لوكي</div>
+      <div class="timer">25 ث</div>
+    </div>
+    
+    <!-- Round info -->
+    <div class="round-info">
+      <div class="round-stat">
+        <div class="label">الراوند</div>
+        <div class="value">3</div>
+      </div>
+      <div class="round-stat">
+        <div class="label">الهدف</div>
+        <div class="value">7</div>
+      </div>
+      <div class="round-stat">
+        <div class="label">نقاطك</div>
+        <div class="value">4</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

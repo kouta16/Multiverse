@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# runtime / local state
+server/data/
+tunnel.log
+tunnel.err
+
+# local backup copies
+backup/
+
+# android build artifacts
+mobile/*.apk
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/.kotlin/
+mobile/android/.idea/
+mobile/android/local.properties
+mobile/android/app/.cxx/
+
+# binaries / optional tooling
+cloudflared.exe
+tools/cloudflared.exe
+
+# gradle / misc metadata
+META-INF/
+resources/
+
+# OS
+Thumbs.db
+Desktop.ini

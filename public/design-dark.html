@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MultiVerse — التصميم الجديد (داكن / Flat 2D)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     MultiVerse — Flat 2D Dark (Cosmic / Tactical) Design Tokens
+  ============================================================ */
+  :root {
+    --bg-0: #07090f;
+    --bg-1: #0c1020;
+    --bg-2: #11172a;
+    --bg-3: #182038;
+    --line: rgba(124, 145, 201, 0.16);
+    --line-strong: #2c3550;
+    --text: #eaf2ff;
+    --text-dim: #8b95b4;
+    --neon-red: #ff4757;
+    --neon-red-soft: #ff5d73;
+    --neon-blue: #4cc9f0;
+    --neon-green: #2dd4a7;
+    --neon-gold: #ffd700;
+    --neon-purple: #b06bff;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Cairo', 'Almarai', sans-serif;
+    color: var(--text);
+    background: var(--bg-0);
+    overflow: hidden;
+    -webkit-user-select: none; user-select: none;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #26304d; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* ================= Background: nebula + tactical grid ================= */
+  .screen {
+    position: fixed; inset: 0; overflow: hidden;
+    background:
+      radial-gradient(1100px 620px at 82% -8%, rgba(76, 201, 240, 0.16) 0%, transparent 60%),
+      radial-gradient(1000px 720px at 8% 108%, rgba(255, 71, 87, 0.13) 0%, transparent 60%),
+      radial-gradient(900px 900px at 50% 46%, rgba(176, 107, 255, 0.09) 0%, transparent 55%),
+      radial-gradient(1200px 500px at 40% 118%, rgba(255, 215, 0, 0.05) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+  }
+  /* faint tactical grid overlay */
+  .screen::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(76, 201, 240, 0.045) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(90deg, rgba(76, 201, 240, 0.045) 0 1px, transparent 1px 56px);
+    mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 80%);
+  }
+  /* drifting "stars" */
+  .screen::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,.35) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,255,255,.28) 50%, transparent 51%),
+      radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(2px 2px at 10% 80%, rgba(255,255,255,.22) 50%, transparent 51%),
+      radial-gradient(1px 1px at 55% 12%, rgba(255,255,255,.35) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 90% 88%, rgba(255,255,255,.25) 50%, transparent 51%);
+    opacity: .8;
+  }
+
+  /* ================= Top bar (HUD) ================= */
+  .hud {
+    position: absolute; top: 0; right: 0; left: 0; height: 62px; z-index: 40;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 0 14px;
+    background: linear-gradient(180deg, rgba(12, 16, 32, .92), rgba(12, 16, 32, .55) 80%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  .hud-side { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; width: 190px; }
+  .hud-side.left  { justify-content: flex-start; }
+  .hud-side.right { justify-content: flex-end; }
+
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line-strong);
+    background: var(--bg-2); color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .12s, background .12s, border-color .12s;
+  }
+  .icon-btn:hover { background: var(--bg-3); border-color: var(--neon-blue); transform: translateY(-2px); }
+  .icon-btn.danger:hover { border-color: var(--neon-red); color: var(--neon-red); }
+  .icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+  /* status banner */
+  .status-banner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 18px; border-radius: 999px;
+    background: var(--bg-2); border: 1px solid var(--line-strong);
+    box-shadow: inset 0 0 0 1px rgba(76, 201, 240, .06), 0 6px 24px rgba(0,0,0,.4);
+  }
+  .status-round { font-weight: 900; color: #fff; font-size: 15px; }
+  .status-round .hl { color: var(--neon-gold); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px;
+    color: #06131a; background: var(--neon-blue);
+  }
+  .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .chip.gold { color: #1a1400; background: var(--neon-gold); }
+  .chip.neutral { color: var(--text-dim); background: var(--bg-3); }
+
+  /* ================= Player seats ================= */
+  .seats { position: absolute; inset: 72px 16px 190px 16px; z-index: 20; }
+  .seat {
+    position: absolute; width: 210px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow), inset 0 0 24px rgba(76, 201, 240, .05);
+    transition: transform .15s, border-color .2s, box-shadow .2s;
+  }
+  .seat:hover { transform: translateY(-3px); }
+  .seat .avatar {
+    width: 46px; height: 46px; border-radius: 12px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 20px; color: #06131a;
+    background: linear-gradient(180deg, var(--neon-blue), #2ea8d6);
+    box-shadow: 0 0 14px rgba(76, 201, 240, .35);
+  }
+  .seat .avatar.alt { background: linear-gradient(180deg, var(--neon-purple), #8a4bd1); box-shadow: 0 0 14px rgba(176,107,255,.35); color: #fff; }
+  .seat .avatar.gold { background: linear-gradient(180deg, var(--neon-gold), #f2a900); box-shadow: 0 0 14px rgba(255,215,0,.35); color: #1a1400; }
+  .seat .avatar.red { background: linear-gradient(180deg, var(--neon-red), #d12f3f); box-shadow: 0 0 14px rgba(255,71,87,.35); color: #fff; }
+  .seat .meta { flex: 1; min-width: 0; }
+  .seat .pname { font-weight: 900; font-size: 15px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seat .psub { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+  .seat .points {
+    display: flex; gap: 3px; margin-top: 5px;
+  }
+  .seat .pip { width: 9px; height: 9px; border-radius: 3px; background: #2a3450; }
+  .seat .pip.on { background: var(--neon-gold); box-shadow: 0 0 6px rgba(255, 215, 0, .5); }
+  .seat.is-turn { border-color: var(--neon-gold); box-shadow: var(--shadow), 0 0 0 2px rgba(255, 215, 0, .28), 0 0 26px rgba(255, 215, 0, .18); }
+  .seat.is-turn .psub { color: var(--neon-gold); }
+  /* positions around the table */
+  .seat-top-center { top: 0; right: 50%; transform: translateX(50%); }
+  .seat-top-right  { top: 0; right: 0; }
+  .seat-top-left   { top: 0; left: 0; }
+  .seat-bottom-left{ bottom: 0; left: 0; }
+
+  /* ================= Central arena ================= */
+  .arena {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 30; width: min(430px, 92vw);
+    padding: 22px 24px 24px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-3));
+    border: 1px solid var(--line-strong);
+    border-radius: 20px;
+    box-shadow: var(--shadow), inset 0 0 40px rgba(76, 201, 240, .06), 0 0 0 1px rgba(255, 215, 0, .06);
+  }
+  .arena::before {
+    content: ''; position: absolute; inset: 6px; border-radius: 15px;
+    border: 1px dashed rgba(124, 145, 201, .22); pointer-events: none;
+  }
+  .arena .arena-title { font-size: 13px; font-weight: 800; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 12px; }
+  .stat-icons { display: flex; justify-content: center; gap: 18px; margin-bottom: 18px; }
+  .stat-ind {
+    width: 62px; height: 62px; border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: var(--bg-1); border: 1px solid var(--line-strong);
+    color: var(--text-dim); font-size: 11px; font-weight: 800;
+    transition: transform .15s, color .15s, border-color .15s, box-shadow .15s;
+  }
+  .stat-ind svg { width: 24px; height: 24px; fill: currentColor; }
+  .stat-ind.attack.active       { color: var(--neon-red);  border-color: var(--neon-red);  box-shadow: 0 0 18px rgba(255,71,87,.3); }
+  .stat-ind.intelligence.active { color: var(--neon-blue); border-color: var(--neon-blue); box-shadow: 0 0 18px rgba(76,201,240,.3); }
+  .stat-ind.defense.active      { color: var(--neon-green);border-color: var(--neon-green);box-shadow: 0 0 18px rgba(45,212,167,.3); }
+  .stat-ind:hover { transform: translateY(-3px); }
+
+  /* ================= CTA button ================= */
+  .btn-cta {
+    width: 100%; padding: 14px 18px; border: none; border-radius: 14px;
+    font-family: inherit; font-size: 18px; font-weight: 900; color: #fff;
+    cursor: pointer;
+    background: linear-gradient(180deg, var(--neon-red-soft), var(--neon-red));
+    box-shadow: 0 8px 24px rgba(255, 71, 87, .35), inset 0 1px 0 rgba(255,255,255,.25);
+    transition: transform .12s, box-shadow .12s, filter .12s;
+  }
+  .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(255, 71, 87, .45), inset 0 1px 0 rgba(255,255,255,.25); filter: brightness(1.05); }
+  .btn-cta:active { transform: translateY(1px); box-shadow: 0 4px 14px rgba(255, 71, 87, .3); }
+  .btn-cta .count { color: var(--neon-gold); }
+  .btn-cta.disabled { filter: grayscale(.6) brightness(.8); cursor: not-allowed; }
+
+  /* ================= Hand (bottom) ================= */
+  .hand-wrap {
+    position: absolute; bottom: 0; right: 0; left: 0; z-index: 35;
+    padding: 14px 18px 16px;
+    background: linear-gradient(180deg, transparent, rgba(7, 9, 15, .9) 40%);
+  }
+  .hand {
+    display: flex; gap: 14px; overflow-x: auto; padding: 14px 6px 18px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+  .hand::-webkit-scrollbar { display: none; }
+
+  /* ================= Card (flat 2D) ================= */
+  .ccard {
+    flex: 0 0 auto; width: 168px;
+    border-radius: 14px; overflow: hidden;
+    background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+    border: 2px solid var(--line-strong);
+    cursor: pointer;
+    transition: transform .18s cubic-bezier(.2,.9,.3,1.2), border-color .18s, box-shadow .18s;
+  }
+  .ccard:hover { transform: translateY(-10px); }
+  .ccard.type-attack        { border-color: rgba(255, 71, 87, .75); }
+  .ccard.type-intelligence  { border-color: rgba(76, 201, 240, .75); }
+  .ccard.type-defense       { border-color: rgba(45, 212, 167, .75); }
+  .ccard.type-special       { border-color: rgba(255, 215, 0, .85); }
+  .ccard.selected {
+    transform: translateY(-16px);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, .6), 0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(255, 215, 0, .25);
+  }
+  .ccard.selected:hover { transform: translateY(-16px); }
+
+  .ccard-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 10px 0;
+  }
+  .type-chip {
+    font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 6px;
+    color: #06131a; letter-spacing: .5px;
+  }
+  .type-chip.c-attack       { background: var(--neon-red); }
+  .type-chip.c-intelligence { background: var(--neon-blue); }
+  .type-chip.c-defense      { background: var(--neon-green); }
+  .type-chip.c-special      { background: var(--neon-gold); color: #1a1400; }
+  .rarity {
+    font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 6px;
+    color: var(--text-dim); background: var(--bg-1); border: 1px solid var(--line);
+  }
+  .rarity.legendary { color: #1a1400; background: linear-gradient(180deg, var(--neon-gold), #f2a900); border-color: transparent; }
+  .rarity.epic      { color: #fff; background: linear-gradient(180deg, #b06bff, #8a4bd1); border-color: transparent; }
+
+  .ccard-art {
+    margin: 8px; height: 150px; border-radius: 10px; overflow: hidden; position: relative;
+    background: linear-gradient(160deg, #1a2240, #0d1226);
+    border: 1px solid var(--line-strong);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ccard-art img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+  .ccard-art .fallback {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    font-size: 42px; font-weight: 900; color: var(--neon-gold);
+  }
+
+  .ccard-name {
+    margin: 0 10px 8px; padding: 5px 6px; border-radius: 8px;
+    background: linear-gradient(180deg, var(--bg-1), #0d1226);
+    border: 1px solid var(--line-strong);
+    text-align: center; font-weight: 900; font-size: 14px; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ccard-name .sp { display: block; font-size: 10px; font-weight: 700; color: var(--neon-gold); }
+
+  .ccard-stats { display: flex; gap: 6px; padding: 0 10px 10px; }
+  .stat {
+    flex: 1; text-align: center; border-radius: 8px; padding: 5px 2px 4px;
+    background: var(--bg-1); border: 1px solid var(--line);
+  }
+  .stat svg { width: 14px; height: 14px; fill: var(--text-dim); }
+  .stat b { display: block; font-size: 15px; font-weight: 900; color: #fff; line-height: 1.2; }
+  .stat span { display: block; font-size: 8.5px; font-weight: 700; color: var(--text-dim); }
+  .stat.att { border-color: rgba(255, 71, 87, .4); } .stat.att b { color: var(--neon-red); }
+  .stat.int { border-color: rgba(76, 201, 240, .4); } .stat.int b { color: var(--neon-blue); }
+  .stat.def { border-color: rgba(45, 212, 167, .4); } .stat.def b { color: var(--neon-green); }
+
+  /* ================= Responsive ================= */
+  @media (max-width: 1100px) {
+    .seat { width: 180px; }
+  }
+  @media (max-width: 880px) {
+    .hud-side { width: auto; }
+    .status-banner { flex-wrap: wrap; justify-content: center; gap: 5px; padding: 6px 12px; }
+    .seats {
+      position: static; margin: 72px 10px 0;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+    }
+    .seat { position: static; transform: none !important; width: calc(50% - 8px); }
+    .arena { top: auto; bottom: 190px; transform: translateX(-50%); }
+    .ccard { width: 150px; }
+    .ccard-art { height: 130px; }
+  }
+  @media (max-width: 560px) {
+    .seat { width: 100%; }
+    .ccard { width: 138px; }
+    .ccard-art { height: 116px; }
+  }
+</style>
+</head>
+<body>
+  <div class="screen">
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="hud">
+      <div class="hud-side right">
+        <button class="icon-btn" id="btn-settings" title="الإعدادات">
+          <svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 0 0 .1-1 7.6 7.6 0 0 0-.1-1l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.5 7.5 0 0 0-1.7-1l-.4-2.7a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.7a7.5 7.5 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6L4.5 11a7.6 7.6 0 0 0-.1 1 7.6 7.6 0 0 0 .1 1l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5c.1.2.4.3.6.2l2.5-1a7.5 7.5 0 0 0 1.7 1l.4 2.7c0 .2.2.4.5.4h4c.2 0 .4-.2.5-.4l.4-2.7a7.5 7.5 0 0 0 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6L19.4 13zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+        </button>
+        <button class="icon-btn danger" id="btn-exit" title="خروج">
+          <svg viewBox="0 0 24 24"><path d="M16 17v-3H9v-4h7V7l5 5-5 5z"/><path d="M14 21h-7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h7v2h-7a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h7v2z"/></svg>
+        </button>
+      </div>
+
+      <div class="status-banner">
+        <span class="status-round"><span class="hl">الجولة الأولى</span></span>
+        <span class="chip"><span class="dot"></span> الذكاء</span>
+        <span class="chip gold">اخترها فرفور</span>
+      </div>
+
+      <div class="hud-side left">
+        <span class="chip neutral">كومة: 84</span>
+      </div>
+    </header>
+
+    <!-- ================= PLAYER SEATS ================= -->
+    <div class="seats">
+      <div class="seat seat-top-center is-turn">
+        <div class="avatar alt">ف</div>
+        <div class="meta">
+          <div class="pname">فرفور</div>
+          <div class="psub">دورك الآن • 6 كروت</div>
+          <div class="points">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seat seat-top-right">
+        <div class="avatar gold">م</div>
+        <div class="meta">
+          <div class="pname">محمود</div>
+          <div class="psub">7 كروت</div>
+          <div class="points">
+            <span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seat seat-top-left">
+        <div class="avatar">م</div>
+        <div class="meta">
+          <div class="pname">مصطفى</div>
+          <div class="psub">5 كروت</div>
+          <div class="points">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seat seat-bottom-left">
+        <div class="avatar red">ع</div>
+        <div class="meta">
+          <div class="pname">عبد الله</div>
+          <div class="psub">7 كروت</div>
+          <div class="points">
+            <span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CENTRAL ARENA ================= -->
+    <div class="arena">
+      <div class="arena-title">نوع الجولة الحالية</div>
+      <div class="stat-icons">
+        <div class="stat-ind attack">
+          <svg viewBox="0 0 24 24"><path d="M14.5 3l2.5 2.5-9.5 9.5L5 17.5 6.5 19l2.5-2.5L18.5 7 21 9.5V3z"/><path d="M11 6L6 11l-1.5 4.5L9 14l2-2"/></svg>
+          هجوم
+        </div>
+        <div class="stat-ind intelligence active">
+          <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-3 9.1V15a3 3 0 0 0 6 0v-3.9A5 5 0 0 0 12 2z"/><path d="M9 18c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M9.5 20.5h5"/></svg>
+          ذكاء
+        </div>
+        <div class="stat-ind defense">
+          <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/></svg>
+          دفاع
+        </div>
+      </div>
+      <button class="btn-cta" id="btn-play" disabled>
+        العب المختارة <span class="count">(0)</span>
+      </button>
+    </div>
+
+    <!-- ================= HAND ================= -->
+    <div class="hand-wrap">
+      <div class="hand" id="hand"></div>
+    </div>
+
+  </div>
+
+<script>
+  /* ============================================================
+     MultiVerse mockup data + selection logic
+  ============================================================ */
+  var IMG = 'https://i.ibb.co/';
+  var TYPES = {
+    attack:       { label: 'هجوم', cls: 'c-attack' },
+    intelligence: { label: 'ذكاء', cls: 'c-intelligence' },
+    defense:      { label: 'دفاع', cls: 'c-defense' },
+    special:      { label: 'خاص', cls: 'c-special' }
+  };
+  var CARDS = [
+    { name: 'باتمان', type: 'attack', rarity: 'نادر', img: 'bMy3m2MW/image.png', a: 650, i: 950, d: 500 },
+    { name: 'هالك', type: 'defense', rarity: 'ملحمي', img: 'gbZj0HJK/image.png', a: 950, i: 100, d: 700 },
+    { name: 'ثور', type: 'attack', rarity: 'أسطوري', img: 'FkNPkKHQ/image.png', a: 1000, i: 500, d: 700 },
+    { name: 'آيرون مان', type: 'intelligence', rarity: 'ملحمي', img: 'zTvBny4c/image.png', a: 700, i: 950, d: 550 },
+    { name: 'سوبرمان', type: 'attack', rarity: 'أسطوري', img: 'fYbkqZsp/image.png', a: 1000, i: 450, d: 800 },
+    { name: 'جرين لانترن', type: 'intelligence', rarity: 'نادر', img: 'jPQD77wd/image.png', a: 850, i: 750, d: 550 },
+    { name: 'الفلاش', type: 'attack', rarity: 'عادي', img: 'FPqHsZ5/image.png', a: 850, i: 350, d: 500 },
+    { name: 'وندر وومان', type: 'defense', rarity: 'أسطوري', img: 'Xx7ySLs6/image.png', a: 900, i: 500, d: 650 },
+    { name: 'أكوا مان', type: 'defense', rarity: 'نادر', img: 'hJdSpfHX/image.png', a: 700, i: 200, d: 450 },
+    { name: 'سبايدر مان', type: 'attack', rarity: 'عادي', img: 'kgfmyx1F/image.png', a: 650, i: 800, d: 450 },
+    { name: 'دكتور فيت', type: 'special', rarity: 'ملحمي', img: 'NgD5qd5n/image.png', a: 750, i: 900, d: 400, sp: 'سرقة' },
+    { name: 'ريفرس فلاش', type: 'special', rarity: 'أسطوري', img: 'FPqHsZ5/image.png', a: 600, i: 300, d: 400, sp: 'تبديل' }
+  ];
+
+  var ICONS = {
+    attack: '<svg viewBox="0 0 24 24"><path d="M14.5 3l2.5 2.5-9.5 9.5L5 17.5 6.5 19l2.5-2.5L18.5 7 21 9.5V3z"/><path d="M11 6L6 11l-1.5 4.5L9 14l2-2"/></svg>',
+    intelligence: '<svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-3 9.1V15a3 3 0 0 0 6 0v-3.9A5 5 0 0 0 12 2z"/><path d="M9 18c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M9.5 20.5h5"/></svg>',
+    defense: '<svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/></svg>'
+  };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderHand() {
+    var hand = document.getElementById('hand');
+    hand.innerHTML = '';
+    CARDS.forEach(function (card, i) {
+      var t = TYPES[card.type];
+      var el = document.createElement('div');
+      el.className = 'ccard type-' + card.type;
+      el.innerHTML =
+        '<div class="ccard-top">' +
+          '<span class="type-chip ' + t.cls + '">' + t.label + '</span>' +
+          '<span class="rarity ' + (card.rarity === 'أسطوري' ? 'legendary' : (card.rarity === 'ملحمي' ? 'epic' : '')) + '">' + card.rarity + '</span>' +
+        '</div>' +
+        '<div class="ccard-art">' +
+          '<img src="' + IMG + card.img + '" alt="' + esc(card.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<span class="fallback">' + esc(card.name.charAt(0)) + '</span>' +
+        '</div>' +
+        '<div class="ccard-name">' + esc(card.name) + (card.sp ? '<span class="sp">' + esc(card.sp) + '</span>' : '') + '</div>' +
+        '<div class="ccard-stats">' +
+          '<div class="stat att">' + ICONS.attack + '<b>' + card.a + '</b><span>هجوم</span></div>' +
+          '<div class="stat int">' + ICONS.intelligence + '<b>' + card.i + '</b><span>ذكاء</span></div>' +
+          '<div class="stat def">' + ICONS.defense + '<b>' + card.d + '</b><span>دفاع</span></div>' +
+        '</div>';
+      el.addEventListener('click', function () {
+        el.classList.toggle('selected');
+        updateCount();
+      });
+      hand.appendChild(el);
+    });
+  }
+
+  function updateCount() {
+    var n = document.querySelectorAll('.ccard.selected').length;
+    var btn = document.getElementById('btn-play');
+    btn.querySelector('.count').textContent = '(' + n + ')';
+    btn.disabled = n === 0;
+    btn.classList.toggle('disabled', n === 0);
+  }
+
+  /* small wiring for the mockup buttons */
+  document.getElementById('btn-play').addEventListener('click', function () {
+    if (!this.disabled) { var n = document.querySelectorAll('.ccard.selected').length; alert('لعبت ' + n + ' كارت (mockup)'); }
+  });
+  document.getElementById('btn-settings').addEventListener('click', function () { alert('الإعدادات (mockup)'); });
+  document.getElementById('btn-exit').addEventListener('click', function () { if (confirm('تخرج من اللعبة؟')) location.reload(); });
+
+  renderHand();
+</script>
+</body>
+</html>

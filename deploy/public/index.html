@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>مالتيفرس — لعبة الكروت</title>
+  <link rel="stylesheet" href="css/style.css?v=12" />
+  <link rel="stylesheet" href="css/android.css?v=4" />
+  <script>
+    (function () {
+      var d = document.documentElement;
+      if (!d) return;
+      var ua = navigator.userAgent || '';
+      var native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      var force = /[?&](android|test)=1/i.test(location.search) || (/^#?android$/.test(location.hash));
+      if (force || native || /Android/i.test(ua)) {
+        d.className += (d.className ? ' ' : '') + 'is-android';
+      }
+      if (native) d.className += (d.className ? ' ' : '') + 'is-native';
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script>
+    (function () {
+      try {
+        var host = location.hostname;
+        if (host !== 'localhost' && host !== '127.0.0.1') return;
+        var last = null;
+        function poll() {
+          fetch('/__live?t=' + Date.now(), { cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (last !== null && d.v !== last) location.reload();
+              last = d.v;
+            })
+            .catch(function () {});
+        }
+        poll();
+        setInterval(poll, 1500);
+      } catch (e) {}
+    })();
+  </script>
+  <div class="bg-pattern"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ===== MENU ===== -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-box">
+      <h1 class="logo">مَالتِيفَرس</h1>
+      <p class="logo-sub">لعبة الكروت الملحمية</p>
+      <div class="account-chip hidden" id="account-chip">
+        <img class="ac-avatar hidden" id="ac-avatar" alt="" />
+        <div class="ac-info">
+          <div class="ac-name" id="ac-name"></div>
+          <div class="ac-stats" id="ac-stats"></div>
+        </div>
+        <button class="btn btn-small" id="ac-logout">خروج</button>
+      </div>
+      <div class="menu-actions">
+        <button class="btn btn-primary" id="btn-ai">ضد الذكاء الاصطناعي</button>
+        <button class="btn btn-outline" id="btn-online">أونلاين (رومات)</button>
+        <button class="btn btn-outline" id="ac-login-btn">تسجيل / دخول</button>
+        <button class="btn btn-icon" id="btn-mute-menu" title="كتم الصوت" aria-label="كتم الصوت">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 8c1.5 1.2 2.5 2.9 2.5 4s-1 2.8-2.5 4"/></svg>
+        </button>
+      </div>
+      <div class="rules-hint" id="rules-hint"></div>
+    </div>
+  </div>
+
+  <!-- ===== AI SETUP ===== -->
+  <div id="screen-ai" class="screen">
+    <div class="menu-box">
+      <h2>العب ضد الذكاء الاصطناعي</h2>
+      <label class="field">
+        <span>اسمك</span>
+        <input type="text" id="ai-name" maxlength="16" placeholder="أكتب اسمك" />
+      </label>
+      <label class="field">
+        <span>عدد خصوم الـ AI</span>
+        <div class="seg" id="ai-count">
+          <button data-n="1" class="active">1</button>
+          <button data-n="2">2</button>
+          <button data-n="3">3</button>
+        </div>
+      </label>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-ai-start">ابدأ اللعب</button>
+        <button class="btn btn-outline" id="btn-ai-back">رجوع</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ONLINE ===== -->
+  <div id="screen-online" class="screen">
+    <div class="menu-box">
+      <h2>أونلاين</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="p2p">روم مباشر (بدون سيرفر)</button>
+        <button class="tab" data-tab="create">إنشاء روم (سيرفر)</button>
+        <button class="tab" data-tab="join">انضمام بكود (سيرفر)</button>
+      </div>
+
+      <div class="tab-body" id="tab-create">
+        <label class="field">
+          <span>اسمك</span>
+          <input type="text" id="create-name" maxlength="16" placeholder="أكتب اسمك" />
+        </label>
+        <button class="btn btn-primary" id="btn-create">إنشاء الروم</button>
+      </div>
+
+      <div class="tab-body" id="tab-join">
+        <label class="field">
+          <span>اسمك</span>
+          <input type="text" id="join-name" maxlength="16" placeholder="أكتب اسمك" />
+        </label>
+        <label class="field">
+          <span>كود الدعوة</span>
+          <input type="text" id="join-code" maxlength="6" placeholder="XXXXXX" style="text-transform:uppercase" />
+        </label>
+        <button class="btn btn-primary" id="btn-join">دخول</button>
+      </div>
+
+      <label class="field">
+        <span>عنوان السيرفر <small>(في التطبيق اكتب العنوان — في المتصفح سيبه فارغ)</small></span>
+        <input type="text" id="server-url" maxlength="80" placeholder="https://اسم-التانيل.trycloudflare.com أو http://192.168.1.5:3000" />
+      </label>
+
+      <div class="tab-body active" id="tab-p2p">
+        <div class="seg" id="online-p2p-mode">
+          <button class="segbtn active" data-mode="host">أبدأ روم مباشر</button>
+          <button class="segbtn" data-mode="join">انضم لروم مباشر</button>
+        </div>
+        <div class="p2p-fields" id="p2p-fields-host">
+          <label class="field">
+            <span>اسمك</span>
+            <input type="text" id="p2p-name" maxlength="16" placeholder="أكتب اسمك" />
+          </label>
+          <button class="btn btn-primary" id="btn-p2p-host">أبدأ الروم المباشر</button>
+        </div>
+        <div class="p2p-fields" id="p2p-fields-join" style="display:none">
+          <label class="field">
+            <span>اسمك</span>
+            <input type="text" id="p2p-name2" maxlength="16" placeholder="أكتب اسمك" />
+          </label>
+          <label class="field">
+            <span>كود المضيف</span>
+            <input type="text" id="p2p-code" maxlength="6" placeholder="XXXXXX" style="text-transform:uppercase" />
+          </label>
+          <button class="btn btn-primary" id="btn-p2p-join">اتصل بالمضيف</button>
+        </div>
+        <p class="status-line" id="p2p-tip">من غير سيرفر — الضيوف بيتوصلوا بيك مباشرة (WebRTC). محتاج إنترنت شغال مع جميع اللاعبين، واللعب من 2 لـ 4 لاعبين.</p>
+      </div>
+
+      <div class="lobby hidden" id="lobby">
+        <div class="code-box">
+          <span>كود الدعوة</span>
+          <div class="code" id="lobby-code">------</div>
+          <button class="btn btn-small" id="btn-copy-code">نسخ</button>
+        </div>
+        <div class="player-list" id="lobby-players"></div>
+        <div id="lobby-host-control"></div>
+        <button class="btn btn-outline" id="btn-leave">خروج من الروم</button>
+      </div>
+
+      <div id="online-status" class="status-line"></div>
+      <button class="btn btn-outline" id="btn-online-back">رجوع</button>
+    </div>
+  </div>
+
+  <!-- ===== ACCOUNT ===== -->
+  <div id="screen-account" class="screen">
+    <div class="menu-box">
+      <h2>حساب اللاعب</h2>
+      <p class="logo-sub">سجل حساب عشان تحسب مكاسبك وتكسب كوينز بعد كل فوز أونلاين</p>
+      <div class="tabs">
+        <button class="tab active" data-tab="login">دخول</button>
+        <button class="tab" data-tab="register">حساب جديد</button>
+      </div>
+
+      <div class="tab-body active" id="ac-login">
+        <label class="field">
+          <span>اسم اللاعب</span>
+          <input type="text" id="ac-login-name" maxlength="16" placeholder="الاسم اللي سجلت بيه" />
+        </label>
+        <label class="field">
+          <span>كلمة المرور</span>
+          <input type="password" id="ac-login-pw" placeholder="••••••" />
+        </label>
+        <button class="btn btn-primary" id="ac-login-submit">دخول</button>
+      </div>
+
+      <div class="tab-body" id="ac-register">
+        <label class="field">
+          <span>اسم اللاعب</span>
+          <input type="text" id="ac-reg-name" maxlength="16" placeholder="اسمك في اللعبة" />
+        </label>
+        <label class="field">
+          <span>كلمة المرور</span>
+          <input type="password" id="ac-reg-pw" placeholder="4 حروف أو أكثر" />
+        </label>
+        <label class="field">
+          <span>تأكيد كلمة المرور</span>
+          <input type="password" id="ac-reg-pw2" placeholder="كرر كلمة المرور" />
+        </label>
+        <div class="field">
+          <span>صورتك الشخصية</span>
+          <div class="avatar-grid" id="ac-avatar-grid"></div>
+          <label class="btn btn-small" for="ac-avatar-file">ارفع صورة</label>
+          <input type="file" id="ac-avatar-file" accept="image/*" hidden />
+        </div>
+        <button class="btn btn-primary" id="ac-reg-submit">إنشاء الحساب</button>
+      </div>
+
+      <div id="ac-msg" class="status-line"></div>
+      <button class="btn btn-outline" id="ac-back">رجوع</button>
+    </div>
+  </div>
+
+  <!-- ===== GAME ===== -->
+  <div id="screen-game" class="screen">
+    <div class="topbar">
+      <div class="tb-item" id="tb-round">الجولة الأولى</div>
+      <div class="tb-item tb-type" id="tb-type">—</div>
+      <div class="tb-item" id="tb-status"></div>
+      <div class="tb-item tb-decks" id="tb-decks"></div>
+      <div class="tb-actions">
+        <button class="btn btn-icon" id="btn-mute-game" title="كتم الصوت" aria-label="كتم الصوت">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 8c1.5 1.2 2.5 2.9 2.5 4s-1 2.8-2.5 4"/></svg>
+        </button>
+        <button class="btn btn-small" id="btn-quit">خروج</button>
+      </div>
+    </div>
+
+    <div id="table">
+      <div id="seats"></div>
+      <div id="my-badge" class="hidden"></div>
+      <div id="spectate-banner" class="hidden">
+        <span class="sb-ic">W</span>
+        <span>خرجت من اللعبة — قاعد بتتفرج على باقي اللاعبين</span>
+      </div>
+
+      <div id="battle-area">
+        <div class="round-title">الجولة <span id="ba-round">1</span></div>
+        <div class="round-icons">
+          <div class="round-icon" id="ba-icon-attack">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M14.5 3l2.5 2.5-9.5 9.5L5 17.5 6.5 19l2.5-2.5L18.5 7 21 9.5V3z"/><path d="M11 6L6 11l-1.5 4.5L9 14l2-2"/></svg>
+          </div>
+          <div class="round-icon" id="ba-icon-intelligence">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2a5 5 0 0 0-3 9.1V15a3 3 0 0 0 6 0v-3.9A5 5 0 0 0 12 2z"/><path d="M9 18c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M9.5 20.5h5"/></svg>
+          </div>
+          <div class="round-icon" id="ba-icon-defense">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M12 2L4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/></svg>
+          </div>
+        </div>
+        <div class="ba-status" id="ba-status"></div>
+        <div class="round-counter" id="ba-decks"></div>
+
+        <div id="action-bar" class="panel hidden">
+          <button class="btn btn-primary" id="btn-play">العب المختار</button>
+          <div class="hint" id="play-hint"></div>
+        </div>
+      </div>
+
+      <div id="type-picker" class="panel hidden">
+        <h3>اختار نوع الراوند</h3>
+        <div class="stat-cards">
+          <button class="stat-btn stat-attack" data-stat="attack">
+            <svg viewBox="0 0 24 24" class="stat-icon"><path d="M14.5 3l2.5 2.5-9.5 9.5L5 17.5 6.5 19l2.5-2.5L18.5 7 21 9.5V3z"/><path d="M11 6L6 11l-1.5 4.5L9 14l2-2"/></svg>
+            <span>هجوم</span>
+          </button>
+          <button class="stat-btn stat-intelligence" data-stat="intelligence">
+            <svg viewBox="0 0 24 24" class="stat-icon"><path d="M12 2a5 5 0 0 0-3 9.1V15a3 3 0 0 0 6 0v-3.9A5 5 0 0 0 12 2z"/><path d="M9 18c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M9.5 20.5h5"/></svg>
+            <span>ذكاء</span>
+          </button>
+          <button class="stat-btn stat-defense" data-stat="defense">
+            <svg viewBox="0 0 24 24" class="stat-icon"><path d="M12 2L4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/></svg>
+            <span>دفاع</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="hand-wrap">
+        <div id="hand"></div>
+      </div>
+
+      <div id="play-pill" class="hidden"></div>
+    </div>
+
+    <div id="reveal-overlay" class="overlay hidden"></div>
+    <div id="swap-overlay" class="overlay hidden"></div>
+    <div id="phase-overlay" class="overlay hidden"></div>
+    <div id="end-overlay" class="overlay hidden"></div>
+    <div id="card-preview" class="hidden"></div>
+  </div>
+
+  <button id="chat-btn" class="hidden" title="الشات" aria-label="الشات">
+    💬<span id="chat-badge" class="hidden">0</span>
+  </button>
+
+  <div id="chat-panel" class="hidden">
+    <div class="chat-head">
+      <span class="chat-title">الشات</span>
+      <button id="chat-close" class="chat-close">✕</button>
+    </div>
+    <div class="chat-tabs">
+      <button class="chat-tab active" data-ctab="talk">الشات</button>
+      <button class="chat-tab" data-ctab="memes">🎵 ميمز صوتية</button>
+    </div>
+    <div class="chat-view" id="chat-talk">
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-emoji-grid hidden" id="chat-emoji-grid"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" maxlength="300" placeholder="اكتب رسالة..." />
+        <button id="chat-emoji-btn" class="chat-emoji-toggle" title="إيموجي">😀</button>
+        <button id="chat-send" class="btn btn-primary btn-small">إرسال</button>
+      </div>
+    </div>
+    <div class="chat-view hidden" id="chat-memes"></div>
+  </div>
+
+  <button id="log-btn" title="سجل الأحداث" aria-label="سجل الأحداث">
+    <svg viewBox="0 0 24 24" class="ic"><path d="M4 4h16v2H4zM4 11h16v2H4zM4 18h10v2H4z"/><path d="M18 15l4 3-4 3z"/></svg>
+    <span id="log-badge" class="hidden">0</span>
+  </button>
+
+  <div id="log-panel" class="hidden">
+    <div class="log-head">
+      <span class="log-title">سجل الأحداث</span>
+      <div class="log-head-actions">
+        <button id="log-clear" class="log-close" title="مسح">🗑</button>
+        <button id="log-close" class="log-close" title="إغلاق">✕</button>
+      </div>
+    </div>
+    <div id="log-list"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="js/cards.js?v=13"></script>
+  <script src="js/engine.js?v=13"></script>
+  <script src="js/ai.js?v=13"></script>
+  <script src="js/audio.js?v=13"></script>
+  <script src="js/config.js?v=13"></script>
+  <script src="js/net.js?v=14"></script>
+  <script src="js/peerjs.min.js"></script>
+  <script src="js/p2p.js?v=14"></script>
+  <script src="js/chat.js?v=13"></script>
+  <script src="js/render.js?v=16"></script>
+  <script src="js/main.js?v=14"></script>
+  <script src="js/account.js?v=13"></script>
+</body>
+</html>

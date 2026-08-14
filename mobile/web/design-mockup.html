@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المالتيفيرس — تصميم كوميكس كلاسيكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255, 215, 0, .18) 0, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(255, 71, 87, .20) 0, transparent 45%),
+      #f6f1e3;
+    color: #15151c;
+    padding: 26px;
+    min-height: 100vh;
+  }
+  /* ===== Halftone (Ben-Day dots) ===== */
+  .halftone { background-image: radial-gradient(rgba(0,0,0,.28) 1.4px, transparent 1.5px); background-size: 11px 11px; }
+  .halftone-w { background-image: radial-gradient(rgba(255,255,255,.30) 1.4px, transparent 1.5px); background-size: 10px 10px; }
+  .halftone-gold { background-image: radial-gradient(rgba(120, 80, 0, .25) 1.4px, transparent 1.5px); background-size: 10px 10px; }
+
+  /* ===== Comic panel ===== */
+  .panel {
+    background: #fff;
+    border: 4px solid #111;
+    border-radius: 18px;
+    box-shadow: 8px 8px 0 #111;
+    padding: 22px;
+    position: relative;
+  }
+  .panel::after {
+    content: ""; position: absolute; inset: 8px; border: 2px solid rgba(0,0,0,.06); border-radius: 12px; pointer-events: none;
+  }
+  .sec-title {
+    display: inline-block; font-weight: 900; font-size: 22px; color: #fff; background: #ff4757;
+    border: 3px solid #111; border-radius: 12px; padding: 4px 18px; margin-bottom: 20px;
+    box-shadow: 4px 4px 0 #111; transform: rotate(-1deg);
+  }
+
+  /* ===== Onomatopoeia ===== */
+  .boom { font-weight: 900; color: #ffd700; -webkit-text-stroke: 2px #111; text-shadow: 4px 4px 0 #111, 0 0 24px rgba(255,215,0,.6); transform: rotate(-8deg); }
+  .boom.small { font-size: 26px; }
+  .boom.big { font-size: 64px; }
+  .boom.pink { color: #ff7bd5; }
+
+  /* ===== Menu mockup ===== */
+  .mock-menu { max-width: 460px; margin: 0 auto 40px; }
+  .logo-comic {
+    text-align: center; font-size: 54px; font-weight: 900; color: #ff4757; line-height: 1.15;
+    -webkit-text-stroke: 3px #111; text-shadow: 6px 6px 0 #ffd700, 10px 10px 0 #111;
+    transform: rotate(-2deg); margin-bottom: 4px;
+  }
+  .logo-sub { text-align: center; font-size: 18px; font-weight: 700; color: #111; margin-bottom: 18px; }
+  .logo-sub .star { color: #ffd700; }
+  .menu-box {
+    background: #fff; border: 4px solid #111; border-radius: 20px; box-shadow: 10px 10px 0 #111;
+    padding: 26px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .menu-box label { font-weight: 900; font-size: 14px; }
+  .menu-input {
+    font-family: inherit; font-size: 18px; font-weight: 700; width: 100%; padding: 12px 14px;
+    border: 4px solid #111; border-radius: 12px; background: #fff9e6; color: #111;
+  }
+  .menu-input:focus { outline: none; background: #fff; box-shadow: 0 0 0 4px #ffd700; }
+  .btn-comic {
+    font-family: inherit; font-weight: 900; font-size: 20px; color: #111;
+    background: linear-gradient(180deg, #ffe94a, #ffc400);
+    border: 4px solid #111; border-radius: 14px; padding: 14px; cursor: pointer;
+    box-shadow: 6px 6px 0 #111; transition: transform .08s, box-shadow .08s;
+  }
+  .btn-comic:hover { transform: translate(-2px, -2px); box-shadow: 9px 9px 0 #111; }
+  .btn-comic:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #111; }
+  .btn-comic.red { background: linear-gradient(180deg, #ff6b7b, #ff4757); color: #fff; }
+  .btn-comic.blue { background: linear-gradient(180deg, #5cc8ff, #2ea8ff); color: #fff; }
+  .menu-note { font-size: 13px; color: #555; text-align: center; }
+
+  /* ===== Comic card ===== */
+  .ccard {
+    width: 200px; background: #fff; border: 4px solid #111; border-radius: 14px;
+    overflow: hidden; box-shadow: 7px 7px 0 #111; position: relative; flex-shrink: 0;
+    transform: rotate(-1.5deg); transition: transform .15s;
+  }
+  .ccard:hover { transform: rotate(0deg) scale(1.06); box-shadow: 10px 10px 0 #111; }
+  .ccard-frame { padding: 6px; }
+  .ccard-imgwrap { position: relative; border: 3px solid #111; border-radius: 8px; overflow: hidden; background: #111; }
+  .ccard-imgwrap img { width: 100%; height: 150px; object-fit: cover; object-position: center top; display: block; }
+  .ccard-rarity {
+    position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 900; padding: 2px 9px;
+    border: 2px solid #111; border-radius: 8px; color: #111; background: #cfd3e0;
+  }
+  .ccard-rarity.legendary { background: linear-gradient(180deg, #ffe94a, #ff9f00); }
+  .ccard-rarity.epic { background: linear-gradient(180deg, #d9a7ff, #b06bff); }
+  .ccard-bonus {
+    position: absolute; top: 8px; left: 8px; font-size: 12px; font-weight: 900; color: #111;
+    background: linear-gradient(180deg, #ffe94a, #ffb300); border: 2px solid #111; border-radius: 50%;
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  }
+  .ccard-name {
+    margin: -16px 6px 6px; position: relative; z-index: 2;
+    background: #ffd700; border: 3px solid #111; border-radius: 9px;
+    font-weight: 900; font-size: 15px; text-align: center; padding: 3px 4px; color: #111;
+    box-shadow: 3px 3px 0 #111; transform: rotate(-1deg);
+  }
+  .ccard-name .sp { display: block; font-size: 10px; color: #7a1f1f; font-weight: 700; }
+  .ccard-stats { display: flex; gap: 5px; padding: 2px 6px 8px; }
+  .cstat {
+    flex: 1; text-align: center; border: 3px solid #111; border-radius: 8px; padding: 3px 0 4px;
+  }
+  .cstat span { display: block; font-size: 9px; font-weight: 700; color: #111; }
+  .cstat b { display: block; font-size: 16px; font-weight: 900; color: #111; }
+  .cstat.att { background: #ffb3ba; }
+  .cstat.int { background: #b8e0ff; }
+  .cstat.def { background: #b8f0d0; }
+
+  .cards-row { display: flex; flex-wrap: wrap; gap: 34px; justify-content: center; padding: 8px 0 14px; }
+  .card-caption { text-align: center; font-size: 13px; font-weight: 700; margin-top: 10px; }
+
+  /* ===== Stat picker ===== */
+  .picker { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .picker-btn {
+    width: 150px; padding: 14px 10px; border: 4px solid #111; border-radius: 16px;
+    font-family: inherit; font-weight: 900; font-size: 17px; cursor: pointer; text-align: center;
+    box-shadow: 6px 6px 0 #111; transition: transform .08s, box-shadow .08s;
+  }
+  .picker-btn small { display: block; font-size: 11px; font-weight: 700; opacity: .85; }
+  .picker-btn:hover { transform: translate(-2px,-2px); }
+  .picker-btn .pz { display: block; font-size: 26px; }
+  .picker.att { background: #ffb3ba; color: #111; }
+  .picker.int { background: #b8e0ff; color: #111; }
+  .picker.def { background: #b8f0d0; color: #111; }
+
+  /* ===== Battle area mockup ===== */
+  .battle { display: flex; flex-direction: column; gap: 14px; max-width: 760px; margin: 0 auto; }
+  .reveal-row {
+    display: flex; align-items: center; gap: 12px; background: #fff;
+    border: 4px solid #111; border-radius: 16px; padding: 12px 16px; box-shadow: 6px 6px 0 #111;
+  }
+  .reveal-row.winner { background: #fff9c9; border-color: #ffd700; box-shadow: 0 0 0 5px #ffd700, 6px 6px 0 #111; }
+  .reveal-row.eliminated { opacity: .55; }
+  .rv-name { width: 110px; font-weight: 900; font-size: 16px; text-align: right; }
+  .rv-cards { flex: 1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .mini { width: 42px; height: 60px; border: 3px solid #111; border-radius: 7px; overflow: hidden; position: relative; box-shadow: 2px 2px 0 #111; }
+  .mini img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .mini .v { position: absolute; bottom: 0; right: 0; left: 0; text-align: center; font-size: 10px; font-weight: 900; color: #fff; background: #111; }
+  .rv-total { font-size: 26px; font-weight: 900; min-width: 64px; text-align: center; }
+  .reveal-row.winner .rv-total { color: #ff9f00; }
+  .rv-badge { font-size: 12px; font-weight: 900; padding: 3px 10px; border: 3px solid #111; border-radius: 9px; background: #ffd700; color: #111; }
+  .rv-badge.out { background: #cfd3e0; color: #111; }
+  .rv-badge.lose { background: #ffb3ba; color: #111; }
+
+  /* ===== Action bar mockup ===== */
+  .action-bar {
+    display: flex; align-items: center; gap: 14px; background: #fff; border: 4px solid #111;
+    border-radius: 16px; padding: 12px 20px; box-shadow: 6px 6px 0 #111; max-width: 640px; margin: 0 auto;
+  }
+  .action-bar .hint { font-weight: 700; color: #555; flex: 1; }
+  .action-bar .btn-comic { padding: 10px 22px; font-size: 17px; }
+
+  /* ===== Swap overlay mockup ===== */
+  .swap { max-width: 660px; margin: 0 auto; background: #fff; border: 5px solid #111; border-radius: 20px; box-shadow: 10px 10px 0 #111; padding: 22px; text-align: center; }
+  .swap h3 { font-size: 24px; font-weight: 900; color: #111; }
+  .swap .sub { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 14px; }
+  .swap-hand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .swap-hand .ccard { width: 150px; transform: none; }
+  .swap-hand .ccard:hover { transform: translateY(-8px); }
+  .swap-hand .ccard.selected { border-color: #ff4757; box-shadow: 0 0 0 4px #ffd700, 7px 7px 0 #111; }
+
+  .foot { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
+  .foot b { color: #ff4757; }
+  section { margin-bottom: 48px; }
+</style>
+</head>
+<body>
+
+  <!-- ================= MENU MOCKUP ================= -->
+  <div class="mock-menu panel" style="border:0;box-shadow:none;background:transparent">
+    <div class="boom big" style="text-align:center;margin-bottom:8px">بوووم!</div>
+    <div class="logo-comic">مالتيفيرس</div>
+    <div class="logo-sub"><span class="star">★</span> معركة الأبطال النهائية <span class="star">★</span></div>
+    <div class="menu-box">
+      <label>اسمعك إيه يا بطل؟</label>
+      <input class="menu-input" type="text" placeholder="اكتب اسمك هنا...">
+      <div style="display:flex;gap:12px">
+        <button class="btn-comic blue" style="flex:1">العب لوحدك (vs ذكاء)</button>
+        <button class="btn-comic red" style="flex:1">ضيف لعب مع أصدقائك</button>
+      </div>
+      <button class="btn-comic" style="width:100%">ابدأ المعركة! ⚡</button>
+      <div class="menu-note">كل كارت له قوة • عقل • دفاع — اختار مواهبك بذكاء!</div>
+    </div>
+  </div>
+
+  <!-- ================= CARDS MOCKUP ================= -->
+  <section>
+    <span class="sec-title">الكروت الجديدة</span>
+    <div class="cards-row">
+      <div>
+        <div class="ccard">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w">
+              <img src="https://i.ibb.co/FkNPkKHQ/image.png" alt="Thor">
+              <span class="ccard-rarity legendary">ليجنداري</span>
+              <span class="ccard-bonus">+70</span>
+            </div>
+            <div class="ccard-name">ثور<span class="sp">⚡ ملك الرعد</span></div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>1000</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>500</b></div>
+              <div class="cstat def"><span>دفاع</span><b>700</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-caption">كارت ليجنداري</div>
+      </div>
+
+      <div>
+        <div class="ccard">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w">
+              <img src="https://i.ibb.co/fYbkqZsp/image.png" alt="Superman">
+              <span class="ccard-rarity legendary">ليجنداري</span>
+              <span class="ccard-bonus">+50</span>
+              <span class="ccard-rarity" style="top:44px;right:8px;background:#ffd700">السوووب</span>
+            </div>
+            <div class="ccard-name">سوبرمان<span class="sp">🦸 رمز الأمل</span></div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>1000</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>450</b></div>
+              <div class="cstat def"><span>دفاع</span><b>800</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-caption">مع شارة "سوووب" (Swap)</div>
+      </div>
+
+      <div>
+        <div class="ccard">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w">
+              <img src="https://i.ibb.co/Xx7ySLs6/image.png" alt="Wonder Woman">
+              <span class="ccard-rarity legendary">ليجنداري</span>
+            </div>
+            <div class="ccard-name">وندر وومن<span class="sp">🗡 أمازون</span></div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>900</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>500</b></div>
+              <div class="cstat def"><span>دفاع</span><b>650</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-caption">نسخة بدون شارات إضافية</div>
+      </div>
+
+      <div>
+        <div class="ccard" style="background:#fff3d6">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w">
+              <img src="https://i.ibb.co/gbZj0HJK/image.png" alt="Hulk">
+              <span class="ccard-rarity epic">أبيك</span>
+            </div>
+            <div class="ccard-name">هالك<span class="sp">💥 ده لو عيل!</span></div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>950</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>100</b></div>
+              <div class="cstat def"><span>دفاع</span><b>700</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-caption">خلفية كرتونية فاتحة</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STAT PICKER ================= -->
+  <section>
+    <span class="sec-title" style="background:#2ea8ff">اختار نوع الهجوم</span>
+    <div class="picker">
+      <button class="picker-btn att"><span class="pz">👊</span>هجوم<small>بس بالعافية</small></button>
+      <button class="picker-btn int"><span class="pz">🧠</span>ذكاء<small>خطة محكمة</small></button>
+      <button class="picker-btn def"><span class="pz">🛡️</span>دفاع<small>سور مش قوي</small></button>
+    </div>
+  </section>
+
+  <!-- ================= BATTLE AREA ================= -->
+  <section>
+    <span class="sec-title" style="background:#ff9f00">ساحة المعركة — بعد الكشف</span>
+    <div class="battle">
+      <div class="reveal-row winner">
+        <div class="rv-name">أنت 😎</div>
+        <div class="rv-cards">
+          <div class="mini"><img src="https://i.ibb.co/fYbkqZsp/image.png"><span class="v">1000</span></div>
+          <div class="mini"><img src="https://i.ibb.co/Xx7ySLs6/image.png"><span class="v">900</span></div>
+        </div>
+        <div class="rv-total">1900</div>
+        <span class="rv-badge">كسبت الراوند! 🏆</span>
+      </div>
+      <div class="reveal-row eliminated">
+        <div class="rv-name">الـ AI</div>
+        <div class="rv-cards">
+          <div class="mini"><img src="https://i.ibb.co/jPQD77wd/image.png"><span class="v">850</span></div>
+        </div>
+        <div class="rv-total">850</div>
+        <span class="rv-badge out">خرج من اللعبة</span>
+      </div>
+      <div class="reveal-row">
+        <div class="rv-name">صاحبك (محلي)</div>
+        <div class="rv-cards">
+          <div class="mini"><img src="https://i.ibb.co/5xMxpSqr/image.png"><span class="v">900</span></div>
+          <div class="mini"><img src="https://i.ibb.co/FkNPkKHQ/image.png"><span class="v">1000</span></div>
+          <div class="mini"><img src="https://i.ibb.co/1YV6CK8G/image.png"><span class="v">700</span></div>
+        </div>
+        <div class="rv-total">2600</div>
+        <span class="rv-badge">تحدّي 🔥</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ACTION BAR ================= -->
+  <section>
+    <span class="sec-title" style="background:#ff4757">شريط الأكشن</span>
+    <div class="action-bar">
+      <span class="hint">اختار كروتك (يفضّل كروت قوية بالهجوم)...</span>
+      <button class="btn-comic blue">العب! 👊</button>
+      <button class="btn-comic">كمّل ▶</button>
+    </div>
+  </section>
+
+  <!-- ================= SWAP OVERLAY ================= -->
+  <section>
+    <span class="sec-title" style="background:#b06bff">نافذة السوووب</span>
+    <div class="swap">
+      <h3>⚡ Reverse Flash — بدّل كارت!</h3>
+      <div class="sub">اختار كارت من إيدك عشان تستبدل الكارت اللي لعبته</div>
+      <div class="swap-hand">
+        <div class="ccard selected">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w"><img src="https://i.ibb.co/fYbkqZsp/image.png" style="height:110px"></div>
+            <div class="ccard-name">سوبرمان</div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>1000</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>450</b></div>
+              <div class="cstat def"><span>دفاع</span><b>800</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="ccard">
+          <div class="ccard-frame">
+            <div class="ccard-imgwrap halftone-w"><img src="https://i.ibb.co/kgfmyx1F/image.png" style="height:110px"></div>
+            <div class="ccard-name">سبايدرمان</div>
+            <div class="ccard-stats">
+              <div class="cstat att"><span>هجوم</span><b>650</b></div>
+              <div class="cstat int"><span>ذكاء</span><b>800</b></div>
+              <div class="cstat def"><span>دفاع</span><b>450</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:18px">
+        <button class="btn-comic red">ألغِ</button>
+        <button class="btn-comic">بدّل! ⚡</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">ده <b>معاينة تصميم</b> فقط — عشان تحس بالشكل قبل ما نحوله للعبة الفعلية.</div>
+
+</body>
+</html>

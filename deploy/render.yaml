@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: multiverse
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    healthCheckPath: /
+    autoDeploy: true

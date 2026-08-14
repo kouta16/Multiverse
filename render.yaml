@@ -1,0 +1,17 @@
+# Render blueprint for Multiverse — deploy once, get a permanent https link.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Note: on the free plan Render has no persistent disk, so coin/account data
+# lives in the ephemeral filesystem and resets on restart. The direct (P2P)
+# rooms and normal server rooms fully work regardless.
+services:
+  - type: web
+    name: multiverse
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node server/index.js
+    healthCheckPath: /__live
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
