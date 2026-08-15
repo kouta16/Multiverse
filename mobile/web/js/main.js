@@ -493,14 +493,11 @@
       onOpen: function () {
         online.connected = true;
         online.wasOpen = true;
-        if (p2p && p2pMode === 'host') Render.setStatus('رومك جاهز — شارك الكود مع أصحابك');
-        else if (p2p) Render.setStatus('متصّل بالروم المباشر');
-        else Render.setStatus('متصل بالسيرفر');
+        Render.setStatus(p2pMode === 'host' ? 'رومك جاهز — شارك الكود مع أصحابك' : 'متصّل بالروم المباشر');
         Render.setOnline(true);
         Chat.setOnline(true);
         Chat.enable();
         Chat.reset();
-        if (!p2p && Account.token) Net.send({ t: 'auth', token: Account.token });
       },
       onClose: function () {
         var wasOpen = online.wasOpen;
@@ -512,12 +509,12 @@
           Render.toast('انقطع الاتصال');
           goMenu();
         } else {
-          Render.setStatus('مقدرش أوصل — راجع إن الخادم شغال وإن عنوانه صح مثلًا http://192.168.1.5:3000', true);
+          Render.setStatus('مقدرش أوصل بالمضيف — اتأكد إن الكود صح وإن الإنترنت شغال', true);
           Render.toast('مقدرش أوصل');
         }
       },
       onError: function () {
-        Render.setStatus('فشل الاتصال — راجع إن الخادم شغال وإن عنوانه مكتوب صح', true);
+        Render.setStatus('فشل الاتصال — راجع الإنترنت وحاول تاني', true);
       },
       onState: handleState,
       onSteal: function (ev) {
@@ -610,12 +607,6 @@
     Render.showScreen('online');
   }
 
-  function connectOnline() {
-    online.connected = false;
-    online.wasOpen = false;
-    Net.connect(onlineHandlers(false));
-  }
-
   function handleState(msg) {
     Render.setStatus('');
     clearTimeout(countdownTimer);
@@ -687,19 +678,13 @@
     Render.startBackground();
     Render.renderRulesHint();
 
-    var svField = q('server-url');
-    if (svField && typeof Config !== 'undefined' && Config.server) svField.value = Config.server();
-
     Account.init();
     Account.onDone = function () { Render.showScreen('menu'); };
 
     q('btn-ai').onclick = function () { Audio.unlock(); Audio.click(); Render.showScreen('ai'); };
     q('btn-online').onclick = function () {
       Audio.unlock(); Audio.click();
-      var sv = q('server-url');
-      if (sv && typeof Config !== 'undefined' && Config.setServer) Config.setServer(sv.value.trim());
       Render.setStatus('');
-      connectOnline();
       Render.showScreen('online');
     };
     q('btn-ai-start').onclick = function () { Audio.click(); startAiMode(); };
@@ -707,18 +692,6 @@
     q('btn-online-back').onclick = function () { Audio.click(); goMenu(); };
     q('btn-quit').onclick = function () { Audio.click(); goMenu(); };
 
-    q('btn-create').onclick = function () {
-      Audio.unlock(); Audio.click();
-      var name = q('create-name').value.trim() || 'لاعب';
-      Net.send({ t: 'create', name: name, token: Account.token || undefined });
-    };
-    q('btn-join').onclick = function () {
-      Audio.unlock(); Audio.click();
-      var name = q('join-name').value.trim() || 'لاعب';
-      var code = q('join-code').value.trim().toUpperCase();
-      if (!code) { Render.setStatus('اكتب كود الدعوة', true); return; }
-      Net.send({ t: 'join', code: code, name: name, token: Account.token || undefined });
-    };
     q('btn-copy-code').onclick = function () {
       Audio.click();
       if (navigator.clipboard) navigator.clipboard.writeText(q('lobby-code').textContent);
@@ -739,16 +712,6 @@
     });
     q('btn-p2p-host').onclick = function () { startP2PHost(); };
     q('btn-p2p-join').onclick = function () { joinP2P(); };
-
-    document.querySelectorAll('#screen-online .tab').forEach(function (t) {
-      t.onclick = function () {
-        Audio.click();
-        document.querySelectorAll('#screen-online .tab').forEach(function (x) { x.classList.remove('active'); });
-        t.classList.add('active');
-        document.querySelectorAll('#screen-online .tab-body').forEach(function (x) { x.classList.remove('active'); });
-        q('tab-' + t.dataset.tab).classList.add('active');
-      };
-    });
 
     document.querySelectorAll('#ai-count button').forEach(function (b) {
       b.onclick = function () {

@@ -101,36 +101,7 @@
   <div id="screen-online" class="screen">
     <div class="menu-box">
       <h2>أونلاين</h2>
-      <div class="tabs">
-        <button class="tab active" data-tab="p2p">روم مباشر (بدون سيرفر)</button>
-        <button class="tab" data-tab="create">إنشاء روم (سيرفر)</button>
-        <button class="tab" data-tab="join">انضمام بكود (سيرفر)</button>
-      </div>
-
-      <div class="tab-body" id="tab-create">
-        <label class="field">
-          <span>اسمك</span>
-          <input type="text" id="create-name" maxlength="16" placeholder="أكتب اسمك" />
-        </label>
-        <button class="btn btn-primary" id="btn-create">إنشاء الروم</button>
-      </div>
-
-      <div class="tab-body" id="tab-join">
-        <label class="field">
-          <span>اسمك</span>
-          <input type="text" id="join-name" maxlength="16" placeholder="أكتب اسمك" />
-        </label>
-        <label class="field">
-          <span>كود الدعوة</span>
-          <input type="text" id="join-code" maxlength="6" placeholder="XXXXXX" style="text-transform:uppercase" />
-        </label>
-        <button class="btn btn-primary" id="btn-join">دخول</button>
-      </div>
-
-      <label class="field">
-        <span>عنوان السيرفر <small>(في التطبيق اكتب العنوان — في المتصفح سيبه فارغ)</small></span>
-        <input type="text" id="server-url" maxlength="80" placeholder="https://اسم-التانيل.trycloudflare.com أو http://192.168.1.5:3000" />
-      </label>
+      <p class="status-line" id="online-hint">العب بالكود بس — مفيش سيرفر ولا إعدادات.</p>
 
       <div class="tab-body active" id="tab-p2p">
         <div class="seg" id="online-p2p-mode">
@@ -155,7 +126,7 @@
           </label>
           <button class="btn btn-primary" id="btn-p2p-join">اتصل بالمضيف</button>
         </div>
-        <p class="status-line" id="p2p-tip">من غير سيرفر — الضيوف بيتوصلوا بيك مباشرة (WebRTC). محتاج إنترنت شغال مع جميع اللاعبين، واللعب من 2 لـ 4 لاعبين.</p>
+        <p class="status-line" id="p2p-tip">كل اللي محتاجه إنترنت شغال عندكم كلكم — البَادئ ياخد كود، والضيف يدخل الكود. اللعب من 2 لـ 4 لاعبين.</p>
       </div>
 
       <div class="lobby hidden" id="lobby">
@@ -353,7 +324,7 @@
   <script src="js/p2p.js?v=14"></script>
   <script src="js/chat.js?v=13"></script>
   <script src="js/render.js?v=16"></script>
-  <script src="js/main.js?v=14"></script>
+  <script src="js/main.js?v=17"></script>
   <script src="js/account.js?v=13"></script>
 </body>
 </html>
