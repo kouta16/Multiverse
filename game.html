@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مالتيفرس - Origami Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0000 0%, #0d0000 50%, #1a0505 100%);
+            min-height: 100vh;
+            color: #f4e4c1;
+            overflow: visible;
+            position: relative;
+            min-width: 1280px;
+            min-height: 720px;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 107, 107, 0.03) 35px, rgba(255, 107, 107, 0.03) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255, 71, 87, 0.03) 35px, rgba(255, 71, 87, 0.03) 70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .setup-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            z-index: 10;
+            position: relative;
+        }
+
+        .setup-box {
+            background: linear-gradient(135deg, rgba(90, 26, 26, 0.95), rgba(46, 14, 14, 0.95));
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            width: 500px;
+            border: 3px solid #ff6b6b;
+            box-shadow: 0 20px 60px rgba(255, 107, 107, 0.3);
+        }
+
+        .setup-box h1 {
+            font-size: 3.5em;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        input, select {
+            padding: 15px;
+            margin: 10px;
+            font-size: 1.1em;
+            border-radius: 15px;
+            border: 2px solid #ff6b6b;
+            width: 85%;
+            background: rgba(46, 14, 14, 0.7);
+            color: #f4e4c1;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff4757;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .btn {
+            padding: 18px 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            border: none;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5);
+        }
+
+        .game-screen {
+            display: none;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            min-width: 1280px;
+            min-height: 720px;
+        }
+
+        .player-slot {
+            position: absolute;
+            width: 180px;
+            height: 90px;
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.95), rgba(40, 10, 10, 0.95));
+            clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+            padding: 0;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 25px rgba(255, 107, 107, 0.3);
+            border: 2px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .player-slot-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 10px;
+        }
+
+        .player-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid #ff6b6b;
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7em;
+            flex-shrink: 0;
+        }
+
+        .player-info-compact {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .player-name {
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.85em;
+        }
+
+        .player-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #ffb347;
+        }
+
+        .player-slot[data-position="bottom-left"] {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .player-slot[data-position="top"] {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .player-slot[data-position="top-left"] {
+            top: 20px;
+            left: 20px;
+        }
+
+        .player-slot[data-position="top-right"] {
+            top: 20px;
+            right: 20px;
+        }
+
+        .player-slot[data-position="middle-left"] {
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+        }
+
+        .player-slot[data-position="middle-right"] {
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+        }
+
+        .player-slot.active {
+            border-color: #ff4757;
+            box-shadow: 0 0 30px rgba(255, 71, 87, 0.6);
+        }
+
+        .player-slot.eliminated {
+            opacity: 0.4;
+            border-color: #888;
+        }
+
+        .player-slot.winner {
+            border-color: #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.7);
+            animation: winnerGlow 1s infinite;
+        }
+
+        @keyframes winnerGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.9); }
+        }
+
+        .battle-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.98), rgba(40, 10, 10, 0.98));
+            clip-path: polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%);
+            padding: 20px;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(255, 107, 107, 0.4);
+            border: 2px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .round-title {
+            color: #fff;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+        }
+
+        .round-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .round-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(255, 71, 87, 0.3));
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            transition: all 0.3s;
+        }
+
+        .round-icon.active {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.8), rgba(255, 71, 87, 0.8));
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+            transform: scale(1.2);
+        }
+
+        .round-counter {
+            text-align: center;
+            color: #ffb347;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .player-hand {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 30;
+            max-width: 95vw;
+            justify-content: center;
+            perspective: 1000px;
+        }
+        
+        .hand-card {
+            width: 200px;
+            height: 300px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7);
+            transform-style: preserve-3d;
+        }
+
+        .hand-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(255, 71, 87, 0.2));
+            border: 4px solid rgba(100, 150, 255, 0.9);
+            border-radius: 15px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hand-card-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, #1a0000, #2d0a0a);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hand-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            border-radius: 12px;
+        }
+
+        .hand-card.plus-card {
+            background: linear-gradient(135deg, #0a4a7d, #1a6ba8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hand-card.plus-card span {
+            font-size: 4.5em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+            z-index: 3;
+        }
+
+        .hand-card:hover {
+            transform: translateY(-40px) scale(1.15);
+            box-shadow: 0 25px 60px rgba(255, 107, 107, 0.7);
+            z-index: 10;
+        }
+
+        .hand-card.selected {
+            transform: translateY(-45px) scale(1.2);
+            box-shadow: 0 0 60px rgba(255, 71, 87, 0.9);
+            z-index: 15;
+        }
+
+        .hand-card.selected::before {
+            border-color: #ffd700;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.9);
+        }
+
+        .hand-card.reverse-flash-active {
+            animation: pulseRed 1.5s infinite;
+        }
+
+        @keyframes pulseRed {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(255, 0, 0, 1);
+            }
+        }
+
+        .controls {
+            position: absolute;
+            top: calc(50% - 120px);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 25;
+        }
+
+        .action-btn {
+            padding: 16px 45px;
+            margin: 0;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.15em;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.95), rgba(139, 28, 28, 0.95));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .action-btn.all-in {
+            background: linear-gradient(135deg, rgba(199, 68, 20, 0.95), rgba(159, 48, 10, 0.95));
+            border-color: rgba(255, 140, 80, 0.6);
+        }
+
+        .type-selector {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.98), rgba(40, 10, 10, 0.98));
+            border: 3px solid rgba(255, 107, 107, 0.6);
+            border-radius: 25px;
+            padding: 30px;
+            z-index: 40;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 50px rgba(255, 107, 107, 0.5);
+        }
+
+        .type-btn {
+            padding: 20px 45px;
+            margin: 10px;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: white;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .type-btn:hover {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.95), rgba(139, 28, 28, 0.95));
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .notifications-container {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.95), rgba(40, 10, 10, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.5);
+            border-right: 3px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 10px 15px;
+            color: #f4e4c1;
+            font-size: 0.85em;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.4);
+            animation: slideInRight 0.3s ease-out;
+            pointer-events: all;
+        }
+
+        .notification.system {
+            border-right-color: #ff4757;
+            color: #ffb347;
+            font-weight: bold;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.hiding {
+            animation: slideOutRight 0.3s ease-out forwards;
+        }
+
+        @keyframes slideOutRight {
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .popup-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.98), rgba(139, 28, 28, 0.98));
+            border: 3px solid #ff4757;
+            border-radius: 20px;
+            padding: 30px 50px;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 50px rgba(255, 107, 107, 0.7);
+            animation: popupShow 0.5s ease-out;
+            pointer-events: all;
+        }
+
+        .popup.winner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.98), rgba(255, 204, 51, 0.98));
+            border-color: #ffd700;
+            color: #1a0000;
+        }
+
+        @keyframes popupShow {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .popup.hiding {
+            animation: popupHide 0.3s ease-out forwards;
+        }
+
+        @keyframes popupHide {
+            to {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        .selector-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 49;
+        }
+
+        .selector-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.98), rgba(40, 10, 10, 0.98));
+            border: 3px solid rgba(255, 107, 107, 0.6);
+            border-radius: 25px;
+            padding: 30px;
+            z-index: 50;
+            min-width: 400px;
+            max-height: 70vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .selector-box h2 {
+            color: #ff4757;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .selector-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .selector-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .selector-btn:hover {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.95), rgba(139, 28, 28, 0.95));
+            transform: scale(1.05);
+        }
+
+        .cancel-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #444;
+            border: none;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background: #666;
+        }
+
+        .results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 60;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .results-box {
+            background: linear-gradient(135deg, rgba(20, 5, 5, 0.98), rgba(40, 10, 10, 0.98));
+            border: 3px solid rgba(255, 107, 107, 0.6);
+            border-radius: 25px;
+            padding: 35px 45px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 90vw;
+        }
+
+        .results-box h2 {
+            color: #ff4757;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 71, 87, 0.6);
+        }
+
+        .results-players {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.4), rgba(99, 20, 20, 0.4));
+            border: 2px solid rgba(255, 107, 107, 0.5);
+            border-radius: 18px;
+            padding: 20px;
+            min-width: 220px;
+            max-width: 250px;
+            transition: all 0.3s;
+        }
+
+        .result-card.winner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 204, 51, 0.3));
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        .player-name-result {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .cards-display {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .card-small {
+            width: 50px;
+            height: 75px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .card-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .total-score {
+            font-size: 1.5em;
+            color: #ffb347;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .continue-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: white;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .continue-btn:hover {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.95), rgba(139, 28, 28, 0.95));
+            transform: scale(1.05);
+        }
+
+        .reverse-flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 70;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reverse-flash-box {
+            background: linear-gradient(135deg, rgba(80, 0, 0, 0.95), rgba(40, 0, 0, 0.95));
+            border: 3px solid #ff0000;
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            max-width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .reverse-flash-box h2 {
+            color: #ff0000;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+        .reverse-flash-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .reverse-flash-card-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .reverse-flash-card-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            border-radius: 8px;
+        }
+
+        .reverse-flash-card-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .reverse-flash-card-btn.selected {
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
+        }
+
+        .reverse-flash-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .reverse-flash-btn {
+            padding: 12px 35px;
+            background: linear-gradient(135deg, rgba(139, 28, 28, 0.95), rgba(99, 20, 20, 0.95));
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .reverse-flash-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(179, 38, 38, 0.95), rgba(139, 28, 28, 0.95));
+            transform: scale(1.05);
+        }
+
+        .reverse-flash-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .reverse-flash-btn.cancel {
+            background: #444;
+            border-color: #666;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(20, 5, 5, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div id="setupScreen" class="setup-screen">
+        <div class="setup-box">
+            <h1>⭐ مالتيفرس ⭐</h1>
+            <div>
+                <select id="playerCount">
+                    <option value="3">3 لاعبين</option>
+                    <option value="4">4 لاعبين</option>
+                    <option value="5">5 لاعبين</option>
+                    <option value="6">6 لاعبين</option>
+                </select>
+            </div>
+            <div id="playerNames"></div>
+            <button class="btn" onclick="startGame()">🎮 ابدأ اللعبة</button>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="game-screen">
+        <div id="playersContainer"></div>
+
+        <div class="controls">
+            <button class="action-btn" id="playBtn" onclick="playSelectedCards()">Play</button>
+            <button class="action-btn all-in" id="allInBtn" onclick="playAllCards()" style="display:none;">All-In</button>
+            <button class="action-btn" id="nextBtn" onclick="startNewRound()" style="display:none;">Next</button>
+        </div>
+
+        <div class="battle-area">
+            <div class="round-title">الجولة <span id="roundNum">1</span></div>
+            <div class="round-icons">
+                <div class="round-icon" id="attackIcon">⚔️</div>
+                <div class="round-icon" id="intelligenceIcon">🧠</div>
+                <div class="round-icon" id="defenseIcon">🛡️</div>
+            </div>
+            <div style="text-align: center;">
+                <span class="round-counter">متبقي: <span id="cardsLeft">0</span></span>
+            </div>
+        </div>
+
+        <div class="notifications-container" id="notifications"></div>
+        <div class="popup-container" id="popupContainer"></div>
+
+        <div class="player-hand" id="playerHand"></div>
+
+        <div id="typeSelector" class="type-selector">
+            <h2 style="color: #ff4757; margin-bottom: 20px;">اختر النوع</h2>
+            <button class="type-btn" onclick="chooseType('attack')">⚔️ هجوم</button>
+            <button class="type-btn" onclick="chooseType('intelligence')">🧠 ذكاء</button>
+            <button class="type-btn" onclick="chooseType('defense')">🛡️ دفاع</button>
+        </div>
+
+        <div id="resultsOverlay" class="results-overlay">
+            <div class="results-box">
+                <h2>🏆 نتائج الراوند</h2>
+                <div class="results-players" id="resultsContainer"></div>
+                <div class="buttons-container">
+                    <button class="continue-btn" onclick="closeResults()">➡️ المتابعة</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="reverseFlashOverlay" class="reverse-flash-overlay">
+            <div class="reverse-flash-box">
+                <h2>⚡ Reverse Flash ⚡</h2>
+                <p style="color: #ffb347; margin-bottom: 20px;">اختر الكارت المشغول اللي عاوز تبديله</p>
+                <div class="reverse-flash-cards" id="reverseFlashCards"></div>
+                <div class="reverse-flash-actions">
+                    <button class="reverse-flash-btn" id="confirmReverseBtn" onclick="confirmReverseFlash()" disabled>✅ تأكيد</button>
+                    <button class="reverse-flash-btn cancel" onclick="cancelReverseFlash()">❌ إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameData = {
+            players: [],
+            deck: [],
+            usedCards: [],
+            round: 1,
+            currentType: null,
+            phase: 'setup',
+            selectedCards: [],
+            roundWinner: null,
+            playerScores: [],
+            hasUsedLokiThisRound: false,
+            reverseFlashActive: false,
+            selectedCardToReplace: null,
+            selectedReplacementCard: null,
+            reverseFlashStep: 1,
+            soundEnabled: true
+        };
+
+        const sounds = {
+            cardDraw: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+            cardPlay: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+            attack: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3',
+            intelligence: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+            defense: 'https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3',
+            win: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'
+        };
+
+        function playSound(soundName) {
+            if (!gameData.soundEnabled) return;
+            try {
+                const audio = new Audio(sounds[soundName]);
+                audio.volume = 0.3;
+                audio.play().catch(e => console.log('Sound play failed:', e));
+            } catch (e) {
+                console.log('Sound error:', e);
+            }
+        }
+
+        function addMessage(text, isSystem = false) {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = isSystem ? 'notification system' : 'notification';
+            notification.textContent = text;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('hiding');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+
+            while (container.children.length > 5) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        function showPopup(text, type = 'normal', duration = 3000) {
+            const container = document.getElementById('popupContainer');
+            const popup = document.createElement('div');
+            popup.className = type === 'winner' ? 'popup winner' : 'popup';
+            popup.textContent = text;
+            container.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.classList.add('hiding');
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        const monsterData = [
+            ["Batman", 650, 950, 500, "https://i.ibb.co/bMy3m2MW/image.png", "rare"], 
+            ["Thor", 1000, 500, 700, "https://i.ibb.co/FkNPkKHQ/image.png", "legendary"],
+            ["Hulk", 950, 100, 700, "https://i.ibb.co/gbZj0HJK/image.png", "epic"],
+            ["The Flash", 850, 350, 500, "https://i.ibb.co/FPqHsZ5/image.png", "common"],
+            ["Wolverine", 750, 400, 500, "https://i.ibb.co/wN4QTCJk/image.png", "rare"],
+            ["Robin", 250, 200, 150, "https://i.ibb.co/j9SHJ1LC/image.png", "common"],
+            ["Green Lantern", 850, 750, 550, "https://i.ibb.co/jPQD77wd/image.png", "rare"],
+            ["Deadpool", 300, 400, 350, "https://i.ibb.co/6crpdvHR/image.png", "rare"],
+            ["Aquaman", 700, 200, 450, "https://i.ibb.co/hJdSpfHX/image.png", "rare"],
+            ["Captain America", 550, 700, 400, "https://i.ibb.co/rRPMjzjJ/image.png", "rare"],
+            ["Black Panther", 650, 900, 500, "https://i.ibb.co/DD6RG9pb/image.png", "rare"],
+            ["Green Arrow", 450, 400, 300, "https://i.ibb.co/Y4Vpx3zd/image.png", "common"],
+            ["Iron Man", 700, 950, 550, "https://i.ibb.co/zTvBny4c/image.png", "epic"],
+            ["Doctor Strange", 800, 850, 650, "https://i.ibb.co/Zzgm8WbN/image.png", "epic"],
+            ["Dr. Fate", 750, 900, 400, "https://i.ibb.co/NgD5qd5n/image.png", "epic"],
+            ["Spider-Man", 650, 800, 450, "https://i.ibb.co/kgfmyx1F/image.png", "common"],
+            ["Daredevil", 400, 600, 300, "https://i.ibb.co/TxxcGCB1/image.png", "common"],
+            ["The Punisher", 350, 400, 250, "https://i.ibb.co/My5BVmm4/image.png", "common"],
+            ["The Thing", 750, 700, 400, "https://i.ibb.co/Cs1NXpFf/image.png", "epic"],
+            ["Raven", 750, 700, 600, "https://i.ibb.co/gZyZ1pYZ/image.png", "rare"],
+            ["Cyborg", 700, 800, 550, "https://i.ibb.co/1YV6CK8G/image.png", "rare"],
+            ["Scarlet Witch", 900, 500, 650, "https://i.ibb.co/5xMxpSqr/image.png", "epic"],
+            ["Superman", 1000, 450, 800, "https://i.ibb.co/fYbkqZsp/image.png", "legendary"],
+            ["Shazam", 950, 100, 700, "https://i.ibb.co/YFzsJhg8/image.png", "epic"],
+            ["Vision", 800, 850, 600, "https://i.ibb.co/d05c1Pt5/image.png", "epic"],
+            ["Wonder Woman", 900, 500, 650, "https://i.ibb.co/Xx7ySLs6/image.png", "legendary"],
+            ["Catwoman", 450, 400, 350, "https://i.ibb.co/gMBz2fPM/image.png", "common"],
+            ["Magneto", 850, 600, 550, "https://i.ibb.co/ZsyD7Z6/image.png", "epic"],
+            ["Martian Manhunter", 800, 600, 650, "https://i.ibb.co/4nN50VS6/image.png", "epic"],
+            ["Mr. Fantastic", 450, 1000, 200, "https://i.ibb.co/4Zynp7CD/image.png", "epic"],
+            ["Moon Knight", 650, 500, 350, "https://i.ibb.co/DH06RLfG/image.png", "rare"],
+            ["Nightwing", 550, 500, 300, "https://i.ibb.co/qM9T6vM8/image.png", "rare"],
+            ["Hawkman", 400, 300, 250, "https://i.ibb.co/M5Scr8Nv/image.png", "common"],
+            ["Homelander", 1000, 150, 700, "https://i.ibb.co/qKQQcyR/image.png", "legendary"],
+            ["Human Torch", 750, 300, 300, "https://i.ibb.co/tpCzhp1m/image.png", "rare"],
+            ["Butcher", 400, 500, 300, "https://i.ibb.co/ks90vMrY/image.png", "common"],
+            ["Captain Marvel", 900, 650, 700, "https://i.ibb.co/73G3QNr/image.png", "legendary"],
+            ["Booster Gold", 350, 250, 300, "https://i.ibb.co/tW75vrq/image.png", "common"],
+            ["A-Train", 700, 200, 400, "https://i.ibb.co/1YpcgsB3/image.png", "rare"],
+            ["Soldier Boy", 800, 250, 600, "https://i.ibb.co/mVvrKG94/image.png", "epic"],
+            ["Constantine", 300, 850, 200, "https://i.ibb.co/Q7gvWXhH/image.png", "rare"],
+            ["Kimiko", 600, 150, 500, "https://i.ibb.co/Rkss28fS/image.png", "common"],
+            ["Blue Beetle", 500, 650, 400, "https://i.ibb.co/jvKb9vRD/image.png", "rare"],
+            ["Black Adam", 950, 300, 700, "https://i.ibb.co/s9BHMLby/image.png", "legendary"],
+            ["Invisible Woman", 450, 500, 350, "https://i.ibb.co/FkFJy9qr/image.png", "common"]
+        ];
+
+        const plusCards = [
+            ["+100", 0, 0, 0, "", "plus", 100],
+            ["+200", 0, 0, 0, "", "plus", 200],
+            ["+300", 0, 0, 0, "", "plus", 300],
+            ["+400", 0, 0, 0, "", "plus", 400],
+            ["+500", 0, 0, 0, "", "plus", 500]
+        ];
+
+        const playerPositions = {
+            3: ['bottom-left', 'top-left', 'top-right'],
+            4: ['bottom-left', 'top-left', 'top', 'top-right'],
+            5: ['bottom-left', 'middle-left', 'top-left', 'top-right', 'middle-right'],
+            6: ['bottom-left', 'middle-left', 'top-left', 'top', 'top-right', 'middle-right']
+        };
+
+        document.getElementById('playerCount').addEventListener('change', function() {
+            const count = parseInt(this.value);
+            const container = document.getElementById('playerNames');
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `اسم اللاعب ${i + 1}`;
+                input.id = `playerName${i}`;
+                container.appendChild(input);
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('playerCount').dispatchEvent(new Event('change'));
+        };
+
+        function startGame() {
+            const count = parseInt(document.getElementById('playerCount').value);
+            for (let i = 0; i < count; i++) {
+                const input = document.getElementById(`playerName${i}`);
+                const name = input ? input.value || `اللاعب ${i + 1}` : `اللاعب ${i + 1}`;
+                gameData.players.push({
+                    id: i,
+                    name: name,
+                    hand: [],
+                    played: [],
+                    score: 0,
+                    ready: false,
+                    eliminated: false,
+                    hasLoki: false,
+                    hasReverseFlash: false
+                });
+            }
+            createDeck();
+            for (let i = 0; i < 7; i++) {
+                gameData.players.forEach(player => {
+                    drawCard(player);
+                    playSound('cardDraw');
+                });
+            }
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            createPlayerSlots();
+            startNewRound();
+        }
+
+        function createPlayerSlots() {
+            const container = document.getElementById('playersContainer');
+            const positions = playerPositions[gameData.players.length];
+            
+            gameData.players.forEach((player, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'player-slot';
+                slot.id = `player-slot-${player.id}`;
+                slot.setAttribute('data-position', positions[index]);
+                
+                slot.innerHTML = `
+                    <div class="player-slot-inner">
+                        <div class="player-avatar">${player.name.charAt(0)}</div>
+                        <div class="player-info-compact">
+                            <div class="player-name">${player.name}</div>
+                            <div class="player-stats">
+                                <span class="player-stat">⭐ <span id="player-score-${player.id}">0</span></span>
+                                <span class="player-stat">🎴 <span id="player-cards-count-${player.id}">${player.hand.length}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(slot);
+            });
+        }
+
+        function createDeck() {
+            gameData.deck = [];
+            gameData.usedCards = [];
+            gameData.deck.push({
+                id: 'loki_' + Math.random().toString(36).substr(2, 9),
+                name: 'Loki',
+                attack: 0,
+                intelligence: 0,
+                defense: 0,
+                img: 'https://i.ibb.co/5xMxpSqr/image.png',
+                rarity: 'command',
+                type: 'hero'
+            });
+            gameData.deck.push({
+                id: 'reverse_flash_' + Math.random().toString(36).substr(2, 9),
+                name: 'Reverse Flash',
+                attack: 0,
+                intelligence: 0,
+                defense: 0,
+                img: '',
+                rarity: 'command',
+                type: 'command'
+            });
+            monsterData.forEach(([name, attack, intelligence, defense, img, rarity]) => {
+                gameData.deck.push({
+                    id: Math.random().toString(36).substr(2, 9),
+                    name: name,
+                    attack: attack,
+                    intelligence: intelligence,
+                    defense: defense,
+                    img: img,
+                    rarity: rarity,
+                    type: 'hero'
+                });
+            });
+            plusCards.forEach(([name, attack, intelligence, defense, img, rarity, value]) => {
+                gameData.deck.push({
+                    id: Math.random().toString(36).substr(2, 9),
+                    name: name,
+                    attack: attack,
+                    intelligence: intelligence,
+                    defense: defense,
+                    img: img,
+                    rarity: rarity,
+                    type: 'plus',
+                    value: value
+                });
+            });
+            gameData.deck.sort(() => Math.random() - 0.5);
+            updateCardCounts();
+        }
+
+        function refillDeck() {
+            if (gameData.usedCards.length > 0) {
+                addMessage("🔄 إعادة خلط الكروت!", true);
+                showPopup("🔄 إعادة خلط الكروت!", 'normal', 2000);
+                gameData.usedCards.forEach(card => {
+                    gameData.deck.push({
+                        ...card,
+                        id: Math.random().toString(36).substr(2, 9)
+                    });
+                });
+                gameData.usedCards = [];
+                gameData.deck.sort(() => Math.random() - 0.5);
+                updateCardCounts();
+            }
+        }
+
+        function drawCard(player) {
+            if (gameData.deck.length === 0) {
+                refillDeck();
+            }
+            if (gameData.deck.length > 0) {
+                const card = gameData.deck.pop();
+                player.hand.push(card);
+                if (card.name === 'Loki') {
+                    player.hasLoki = true;
+                }
+                if (card.name === 'Reverse Flash') {
+                    player.hasReverseFlash = true;
+                }
+                updateCardCounts();
+            }
+        }
+
+        function updateCardCounts() {
+            document.getElementById('cardsLeft').textContent = gameData.deck.length;
+        }
+
+        function startNewRound() {
+            gameData.phase = 'choosing';
+            gameData.selectedCards = [];
+            gameData.roundWinner = null;
+            gameData.playerScores = [];
+            gameData.hasUsedLokiThisRound = false;
+            gameData.reverseFlashActive = false;
+            gameData.selectedCardToReplace = null;
+            gameData.selectedReplacementCard = null;
+            gameData.reverseFlashStep = 1;
+            gameData.players.forEach(player => {
+                player.played.forEach(card => {
+                    gameData.usedCards.push(card);
+                });
+                player.played = [];
+                player.ready = false;
+            });
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('allInBtn').style.display = 'none';
+            document.getElementById('typeSelector').style.display = 'none';
+            document.getElementById('resultsOverlay').style.display = 'none';
+            document.getElementById('reverseFlashOverlay').style.display = 'none';
+            
+            document.getElementById('attackIcon').classList.remove('active');
+            document.getElementById('intelligenceIcon').classList.remove('active');
+            document.getElementById('defenseIcon').classList.remove('active');
+            
+            const chooser = gameData.players[gameData.round % gameData.players.length];
+            addMessage(`🎯 ${chooser.name} يختار النوع`);
+            if (chooser.id === 0) {
+                document.getElementById('typeSelector').style.display = 'block';
+            } else {
+                setTimeout(() => {
+                    const types = ['attack', 'intelligence', 'defense'];
+                    chooseType(types[Math.floor(Math.random() * 3)]);
+                }, 1500);
+            }
+            updateDisplay();
+        }
+
+        function chooseType(type) {
+            gameData.currentType = type;
+            gameData.phase = 'playing';
+            document.getElementById('typeSelector').style.display = 'none';
+            
+            document.getElementById('attackIcon').classList.remove('active');
+            document.getElementById('intelligenceIcon').classList.remove('active');
+            document.getElementById('defenseIcon').classList.remove('active');
+            
+            if (type === 'attack') {
+                document.getElementById('attackIcon').classList.add('active');
+            } else if (type === 'intelligence') {
+                document.getElementById('intelligenceIcon').classList.add('active');
+            } else if (type === 'defense') {
+                document.getElementById('defenseIcon').classList.add('active');
+            }
+            
+            const typeNames = {
+                'attack': '⚔️ هجوم',
+                'intelligence': '🧠 ذكاء',
+                'defense': '🛡️ دفاع'
+            };
+            addMessage(`📢 النوع: ${typeNames[type]}`);
+            showPopup(typeNames[type], 'normal', 2000);
+            playSound(type);
+            const human = gameData.players[0];
+            if (human.score === 6 && human.hand.length === human.hand.filter(c => c.type === 'hero' || c.type === 'plus').length) {
+                document.getElementById('allInBtn').style.display = 'inline-block';
+            }
+            gameData.players.forEach((player, index) => {
+                if (index > 0 && !player.eliminated) {
+                    setTimeout(() => computerPlay(player), 1000 + index * 500);
+                }
+            });
+            updateDisplay();
+        }
+
+        function computerPlay(player) {
+            if (player.ready || player.eliminated) return;
+            const playableCards = player.hand.filter(c => c.type === 'hero' || c.type === 'plus');
+            if (player.hand.length === 0 && player.score < 6) {
+                player.eliminated = true;
+                addMessage(`💀 ${player.name} خسر!`);
+                showPopup(`💀 ${player.name} خسر!`, 'normal', 2000);
+                player.ready = true;
+                checkAllReady();
+                return;
+            }
+            if (playableCards.length > 0) {
+                const heroes = playableCards.filter(c => c.type === 'hero' && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+                const pluses = playableCards.filter(c => c.type === 'plus');
+                if (heroes.length > 0) {
+                    if (player.score === 6 && player.hand.length === playableCards.length) {
+                        playableCards.forEach(card => {
+                            player.hand = player.hand.filter(c => c.id !== card.id);
+                            player.played.push(card);
+                        });
+                        addMessage(`🎲 ${player.name} يخاطر بكل شيء!`);
+                    } else {
+                        const numHeroesToPlay = Math.random() > 0.7 && heroes.length > 1 ? Math.min(2, heroes.length) : 1;
+                        const bestHeroes = heroes.sort((a, b) => {
+                            const valA = gameData.currentType === 'attack' ? a.attack : gameData.currentType === 'intelligence' ? a.intelligence : a.defense;
+                            const valB = gameData.currentType === 'attack' ? b.attack : gameData.currentType === 'intelligence' ? b.intelligence : b.defense;
+                            return valB - valA;
+                        }).slice(0, numHeroesToPlay);
+                        bestHeroes.forEach(hero => {
+                            player.hand = player.hand.filter(c => c.id !== hero.id);
+                            player.played.push(hero);
+                        });
+                        if (pluses.length > 0 && Math.random() > 0.3) {
+                            const numPluses = Math.min(Math.floor(Math.random() * 2) + 1, pluses.length);
+                            for (let i = 0; i < numPluses; i++) {
+                                const plus = pluses[i];
+                                player.hand = player.hand.filter(c => c.id !== plus.id);
+                                                                player.played.push(plus);
+                            }
+                        }
+                    }
+                }
+            }
+            player.ready = true;
+            addMessage(`✅ ${player.name} جاهز`);
+            playSound('cardPlay');
+            checkAllReady();
+            updateDisplay();
+        }
+
+        function toggleCard(cardId) {
+            if (gameData.phase !== 'playing' || gameData.players[0].ready) return;
+            const card = gameData.players[0].hand.find(c => c.id === cardId);
+            if (!card) return;
+            if (card.name === 'Loki' || card.name === 'Reverse Flash') {
+                addMessage("❌ استخدم الأزرار الخاصة!");
+                return;
+            }
+            const selectedHeroes = gameData.selectedCards.filter(c => c.type === 'hero' && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+            if (card.type === 'plus') {
+                if (selectedHeroes.length === 0 && gameData.selectedCards.findIndex(c => c.id === cardId) === -1) {
+                    addMessage("❌ كروت + تحتاج بطل!");
+                    return;
+                }
+            }
+            const index = gameData.selectedCards.findIndex(c => c.id === cardId);
+            if (index > -1) {
+                gameData.selectedCards.splice(index, 1);
+            } else {
+                gameData.selectedCards.push(card);
+            }
+            updateDisplay();
+        }
+
+        function useLoki() {
+            if (gameData.hasUsedLokiThisRound) {
+                addMessage("❌ استخدمت Loki بالفعل في هذه الجولة!");
+                return;
+            }
+            const humanPlayer = gameData.players[0];
+            const lokiCard = humanPlayer.hand.find(c => c.name === 'Loki');
+            if (!lokiCard) {
+                addMessage("❌ ما فيش Loki في يدك!");
+                return;
+            }
+            showLokiPlayerSelector();
+        }
+
+        function showLokiPlayerSelector() {
+            const gameScreen = document.getElementById('gameScreen');
+            const overlay = document.createElement('div');
+            overlay.className = 'selector-overlay';
+            overlay.id = 'selectorOverlay';
+            overlay.onclick = function(e) {
+                if (e.target === overlay) closeLokiSelector();
+            };
+            const selector = document.createElement('div');
+            selector.className = 'selector-box';
+            selector.id = 'playerSelector';
+            let html = `<h2>🎭 Loki - اختر لاعب</h2><div class="selector-buttons">`;
+            gameData.players.forEach(player => {
+                if (player.id !== 0 && !player.eliminated && player.hand.length > 0) {
+                    html += `<button class="selector-btn" onclick="stealRandomCard(${player.id})">${player.name}<br>🎴 ${player.hand.length}</button>`;
+                }
+            });
+            html += `</div><button class="cancel-btn" onclick="closeLokiSelector()">❌ إلغاء</button>`;
+            selector.innerHTML = html;
+            gameScreen.appendChild(overlay);
+            gameScreen.appendChild(selector);
+        }
+
+        function stealRandomCard(targetPlayerId) {
+            const humanPlayer = gameData.players[0];
+            const targetPlayer = gameData.players.find(p => p.id === targetPlayerId);
+            const lokiCard = humanPlayer.hand.find(c => c.name === 'Loki');
+            if (!lokiCard || !targetPlayer || targetPlayer.hand.length === 0) {
+                addMessage("❌ خطأ في السرقة!");
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * targetPlayer.hand.length);
+            const stolenCard = targetPlayer.hand.splice(randomIndex, 1)[0];
+            humanPlayer.hand = humanPlayer.hand.filter(c => c.id !== lokiCard.id);
+            humanPlayer.played.push(lokiCard);
+            humanPlayer.hand.push(stolenCard);
+            gameData.players.forEach(p => {
+                p.hasLoki = p.hand.some(c => c.name === 'Loki');
+            });
+            closeLokiSelector();
+            gameData.hasUsedLokiThisRound = true;
+            addMessage(`🎭 استخدمت Loki وسرقت ${stolenCard.name} من ${targetPlayer.name}!`, true);
+            showPopup(`🎭 سرقت ${stolenCard.name}!`, 'normal', 2000);
+            playSound('cardPlay');
+            updateDisplay();
+        }
+
+        function closeLokiSelector() {
+            const overlay = document.getElementById('selectorOverlay');
+            const selector = document.getElementById('playerSelector');
+            if (overlay) overlay.remove();
+            if (selector) selector.remove();
+        }
+
+        function playAllCards() {
+            const player = gameData.players[0];
+            const playableCards = player.hand.filter(c => (c.type === 'hero' || c.type === 'plus') && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+            if (player.score !== 6) {
+                addMessage("❌ تحتاج 6 نقاط!");
+                return;
+            }
+            playableCards.forEach(card => {
+                player.hand = player.hand.filter(c => c.id !== card.id);
+                player.played.push(card);
+            });
+            player.ready = true;
+            gameData.selectedCards = [];
+            addMessage(`🔥 تلعب كل كروتك!`);
+            showPopup(`🔥 All-In!`, 'normal', 2000);
+            playSound('cardPlay');
+            checkAllReady();
+            updateDisplay();
+        }
+
+        function playSelectedCards() {
+            const player = gameData.players[0];
+            if (player.hand.length === 0 && player.score < 6) {
+                player.eliminated = true;
+                addMessage(`💀 خسرت!`);
+                setTimeout(() => {
+                    alert(`💀 للأسف خسرت اللعبة!`);
+                    location.reload();
+                }, 1500);
+                return;
+            }
+            if (gameData.selectedCards.length === 0) {
+                addMessage("❌ اختر كروت!");
+                return;
+            }
+            const hasHero = gameData.selectedCards.some(c => c.type === 'hero' && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+            if (!hasHero) {
+                const hasHeroInHand = player.hand.some(c => c.type === 'hero' && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+                if (!hasHeroInHand) {
+                    player.ready = true;
+                    addMessage(`✅ تمرير تلقائي`);
+                    checkAllReady();
+                    updateDisplay();
+                    return;
+                }
+                addMessage("❌ اختر بطل!");
+                return;
+            }
+            gameData.selectedCards.forEach(card => {
+                player.hand = player.hand.filter(c => c.id !== card.id);
+                player.played.push(card);
+            });
+            player.ready = true;
+            gameData.selectedCards = [];
+            addMessage(`✅ جاهز`);
+            playSound('cardPlay');
+            checkAllReady();
+            updateDisplay();
+        }
+
+        function checkAllReady() {
+            const allReady = gameData.players.filter(p => !p.eliminated).every(p => p.ready);
+            if (allReady) {
+                setTimeout(showResults, 1500);
+            }
+        }
+
+        function showResults() {
+            gameData.phase = 'result';
+            gameData.playerScores = gameData.players.filter(p => !p.eliminated).map(player => {
+                let total = 0;
+                let heroCount = 0;
+                player.played.forEach(card => {
+                    if (card.type === 'hero' && card.name !== 'Loki' && card.name !== 'Reverse Flash') {
+                        heroCount++;
+                        total += gameData.currentType === 'attack' ? card.attack : gameData.currentType === 'intelligence' ? card.intelligence : card.defense;
+                    } else if (card.type === 'plus') {
+                        total += card.value;
+                    }
+                });
+                return { player, total, heroCount };
+            });
+            const activePlayers = gameData.playerScores.filter(s => s.total > 0);
+            if (activePlayers.length > 0) {
+                activePlayers.sort((a, b) => b.total - a.total);
+                const winner = activePlayers[0];
+                gameData.roundWinner = winner.player;
+                addMessage(`🏆 ${winner.player.name} فاز!`, true);
+                showPopup(`🏆 ${winner.player.name} فاز بالراوند!`, 'winner', 3000);
+                if (winner.player.id === 0) {
+                    playSound('win');
+                }
+                updateDisplay();
+                displayRoundResults();
+            }
+        }
+
+        function displayRoundResults() {
+            const resultsOverlay = document.getElementById('resultsOverlay');
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            gameData.playerScores.forEach(scoreData => {
+                const player = scoreData.player;
+                const total = scoreData.total;
+                const isWinner = gameData.roundWinner && gameData.roundWinner.id === player.id;
+                let resultHTML = `<div class="result-card ${isWinner ? 'winner' : ''}"><div class="player-name-result">${isWinner ? '🏆 ' : ''}${player.name}</div><div class="cards-display">`;
+                player.played.forEach(card => {
+                    if (card.name === 'Loki') {
+                        resultHTML += `<div class="card-small" style="background:linear-gradient(135deg,#8e44ad,#3498db);display:flex;align-items:center;justify-content:center;font-size:1.5em;">🎭</div>`;
+                    } else if (card.name === 'Reverse Flash') {
+                        resultHTML += `<div class="card-small" style="background:linear-gradient(135deg,#ff0000,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:1.5em;">⚡</div>`;
+                    } else if (card.type === 'hero') {
+                        resultHTML += `<div class="card-small"><img src="${card.img}" alt="${card.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<span>${card.name.substring(0, 2)}</span>'"></div>`;
+                    } else if (card.type === 'plus') {
+                        resultHTML += `<div class="card-small" style="background:linear-gradient(135deg,#48dbfb,#0abde3);display:flex;align-items:center;justify-content:center;font-size:0.9em;color:white;font-weight:bold;">${card.name}</div>`;
+                    }
+                });
+                resultHTML += `</div><div class="total-score">النقاط: ${total}</div></div>`;
+                resultsContainer.innerHTML += resultHTML;
+            });
+            resultsOverlay.style.display = 'flex';
+        }
+
+        function useReverseFlashCard() {
+            const humanPlayer = gameData.players[0];
+            if (gameData.phase !== 'result') {
+                addMessage("❌ يستخدم بعد الراوند فقط!");
+                return;
+            }
+            if (humanPlayer.eliminated) {
+                addMessage("❌ لا يمكنك استخدامه!");
+                return;
+            }
+            if (humanPlayer.id === gameData.roundWinner.id) {
+                addMessage("❌ أنت الفائز بالفعل!");
+                return;
+            }
+            if (!humanPlayer.hasReverseFlash) {
+                addMessage("❌ ما فيش Reverse Flash في يدك!");
+                return;
+            }
+            if (humanPlayer.played.length === 0) {
+                addMessage("❌ ما فيش كروت لتبديلها!");
+                return;
+            }
+            showReverseFlashOptions();
+        }
+
+        function showReverseFlashOptions() {
+            const humanPlayer = gameData.players[0];
+            const reverseFlashOverlay = document.getElementById('reverseFlashOverlay');
+            const reverseFlashCards = document.getElementById('reverseFlashCards');
+            reverseFlashCards.innerHTML = '';
+            gameData.selectedCardToReplace = null;
+            gameData.selectedReplacementCard = null;
+            document.getElementById('confirmReverseBtn').disabled = true;
+            const title = document.createElement('h3');
+            title.style.color = '#ffb347';
+            title.style.marginBottom = '15px';
+            title.innerHTML = '⚡ اختر الكارت المشغول اللي عاوز تبديله:';
+            reverseFlashCards.appendChild(title);
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'reverse-flash-cards';
+            cardsContainer.id = 'playedCardsContainer';
+            humanPlayer.played.forEach(card => {
+                if (card.type === 'hero' || card.type === 'plus') {
+                    const btn = document.createElement('button');
+                    btn.className = 'reverse-flash-card-btn';
+                    btn.onclick = () => selectCardToReplace(card.id, btn);
+                    if (card.type === 'hero' && card.img) {
+                        btn.innerHTML = `<img src="${card.img}" alt="${card.name}">`;
+                    } else if (card.type === 'plus') {
+                        btn.innerHTML = `<div style="font-size:2em;font-weight:bold;color:#0abde3;display:flex;align-items:center;justify-content:center;height:100%;">${card.name}</div>`;
+                    }
+                    cardsContainer.appendChild(btn);
+                }
+            });
+            reverseFlashCards.appendChild(cardsContainer);
+            reverseFlashOverlay.style.display = 'flex';
+        }
+
+        function selectCardToReplace(cardId, element) {
+            const playedCardsContainer = document.getElementById('playedCardsContainer');
+            const allPlayedBtns = playedCardsContainer.querySelectorAll('button');
+            allPlayedBtns.forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            gameData.selectedCardToReplace = cardId;
+            element.classList.add('selected');
+            showReplacementOptions();
+        }
+
+        function showReplacementOptions() {
+            const humanPlayer = gameData.players[0];
+            const reverseFlashCards = document.getElementById('reverseFlashCards');
+            reverseFlashCards.innerHTML = '';
+            const title1 = document.createElement('h3');
+            title1.style.color = '#00ff00';
+            title1.style.marginBottom = '10px';
+            title1.innerHTML = '✅ اخترت الكارت المشغول';
+            reverseFlashCards.appendChild(title1);
+            const title2 = document.createElement('h3');
+            title2.style.color = '#ffb347';
+            title2.style.marginBottom = '15px';
+            title2.innerHTML = '⚡ الآن اختر الكارت البديل من يدك:';
+            reverseFlashCards.appendChild(title2);
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'reverse-flash-cards';
+            cardsContainer.id = 'replacementCardsContainer';
+            humanPlayer.hand.forEach(card => {
+                if ((card.type === 'hero' || card.type === 'plus') && card.name !== 'Loki' && card.name !== 'Reverse Flash') {
+                    const btn = document.createElement('button');
+                    btn.className = 'reverse-flash-card-btn';
+                    btn.onclick = () => selectReplacementCard(card.id, btn);
+                    if (card.type === 'hero' && card.img) {
+                        btn.innerHTML = `<img src="${card.img}" alt="${card.name}">`;
+                    } else if (card.type === 'plus') {
+                        btn.innerHTML = `<div style="font-size:2em;font-weight:bold;color:#0abde3;display:flex;align-items:center;justify-content:center;height:100%;">${card.name}</div>`;
+                    }
+                    cardsContainer.appendChild(btn);
+                }
+            });
+            reverseFlashCards.appendChild(cardsContainer);
+            document.getElementById('confirmReverseBtn').disabled = true;
+        }
+
+        function selectReplacementCard(cardId, element) {
+            gameData.selectedReplacementCard = cardId;
+            const replacementContainer = document.getElementById('replacementCardsContainer');
+            const allReplacementBtns = replacementContainer.querySelectorAll('button');
+            allReplacementBtns.forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('confirmReverseBtn').disabled = false;
+        }
+
+        function confirmReverseFlash() {
+            const humanPlayer = gameData.players[0];
+            if (!gameData.selectedCardToReplace || !gameData.selectedReplacementCard) {
+                addMessage("❌ اختر الكروت كلهم!");
+                return;
+            }
+            const cardToReplace = humanPlayer.played.find(c => c.id === gameData.selectedCardToReplace);
+            const replacementCard = humanPlayer.hand.find(c => c.id === gameData.selectedReplacementCard);
+            const reverseFlashCard = humanPlayer.hand.find(c => c.name === 'Reverse Flash');
+            if (!cardToReplace || !replacementCard || !reverseFlashCard) {
+                addMessage("❌ خطأ!");
+                return;
+            }
+            humanPlayer.played = humanPlayer.played.map(c => c.id === cardToReplace.id ? replacementCard : c);
+            humanPlayer.hand = humanPlayer.hand.filter(c => c.id !== replacementCard.id);
+            humanPlayer.hand.push(cardToReplace);
+            humanPlayer.hand = humanPlayer.hand.filter(c => c.id !== reverseFlashCard.id);
+            gameData.usedCards.push(reverseFlashCard);
+            humanPlayer.hasReverseFlash = false;
+            addMessage(`⚡ استخدمت Reverse Flash وبدلت ${cardToReplace.name} ب ${replacementCard.name}!`, true);
+            showPopup(`⚡ Reverse Flash!`, 'normal', 2000);
+            playSound('cardPlay');
+            cancelReverseFlash();
+            gameData.playerScores = gameData.players.filter(p => !p.eliminated).map(player => {
+                let total = 0;
+                player.played.forEach(card => {
+                    if (card.type === 'hero' && card.name !== 'Loki' && card.name !== 'Reverse Flash') {
+                        total += gameData.currentType === 'attack' ? card.attack : gameData.currentType === 'intelligence' ? card.intelligence : card.defense;
+                    } else if (card.type === 'plus') {
+                        total += card.value;
+                    }
+                });
+                return { player, total };
+            });
+            const activePlayers = gameData.playerScores.filter(s => s.total > 0);
+            if (activePlayers.length > 0) {
+                activePlayers.sort((a, b) => b.total - a.total);
+                gameData.roundWinner = activePlayers[0].player;
+            }
+            displayRoundResults();
+            updateDisplay();
+        }
+
+        function cancelReverseFlash() {
+            document.getElementById('reverseFlashOverlay').style.display = 'none';
+            gameData.selectedCardToReplace = null;
+            gameData.selectedReplacementCard = null;
+        }
+
+        function closeResults() {
+            document.getElementById('resultsOverlay').style.display = 'none';
+            const activePlayers = gameData.playerScores.filter(s => s.total > 0);
+            if (activePlayers.length > 0) {
+                activePlayers.sort((a, b) => b.total - a.total);
+                applyRoundResult(activePlayers[0]);
+            }
+        }
+
+        function applyRoundResult(winner) {
+            winner.player.score++;
+            addMessage(`🏆 ${winner.player.name} فاز!`, true);
+            if (winner.player.score >= 7) {
+                showPopup(`🎉 ${winner.player.name} فاز باللعبة!`, 'winner', 4000);
+                setTimeout(() => {
+                    alert(`🎉 ${winner.player.name} فاز باللعبة!`);
+                    location.reload();
+                }, 2000);
+                updateDisplay();
+                return;
+            }
+            gameData.players.forEach(player => {
+                if (!player.eliminated && player.hand.length === 0) {
+                    if (player.score < 6) {
+                        player.eliminated = true;
+                        addMessage(`💀 ${player.name} خسر!`);
+                        showPopup(`💀 ${player.name} خسر!`, 'normal', 2000);
+                        if (player.id === 0) {
+                            setTimeout(() => {
+                                alert(`💀 خسرت اللعبة!`);
+                                location.reload();
+                            }, 2000);
+                        }
+                    } else if (player.score === 6) {
+                        player.eliminated = true;
+                        addMessage(`💀 ${player.name} لم يفز!`);
+                        if (player.id === 0) {
+                            setTimeout(() => {
+                                alert(`💀 خسرت!`);
+                                location.reload();
+                            }, 2500);
+                        }
+                    }
+                }
+            });
+            gameData.players.filter(p => !p.eliminated).forEach(p => {
+                drawCard(p);
+                playSound('cardDraw');
+            });
+            const activePlayers2 = gameData.players.filter(p => !p.eliminated);
+            if (activePlayers2.length === 1) {
+                showPopup(`🎉 ${activePlayers2[0].name} فاز!`, 'winner', 4000);
+                setTimeout(() => {
+                    alert(`🎉 ${activePlayers2[0].name} فاز!`);
+                    location.reload();
+                }, 2000);
+                updateDisplay();
+                return;
+            }
+            gameData.round++;
+            document.getElementById('roundNum').textContent = gameData.round;
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('roundNum').textContent = gameData.round;
+            document.getElementById('cardsLeft').textContent = gameData.deck.length;
+            gameData.players.forEach(player => {
+                const slot = document.getElementById(`player-slot-${player.id}`);
+                if (!slot) return;
+                slot.className = 'player-slot';
+                slot.setAttribute('data-position', slot.getAttribute('data-position'));
+                if (player.eliminated) {
+                    slot.classList.add('eliminated');
+                } else if (gameData.roundWinner && gameData.roundWinner.id === player.id) {
+                    slot.classList.add('winner');
+                } else if (player.id === 0) {
+                    slot.classList.add('active');
+                }
+                document.getElementById(`player-score-${player.id}`).textContent = player.score;
+                const cardCountElement = document.getElementById(`player-cards-count-${player.id}`);
+                if (cardCountElement) {
+                    if (gameData.phase === 'playing' && player.id !== 0) {
+                        cardCountElement.textContent = '?';
+                    } else {
+                        cardCountElement.textContent = player.hand.length;
+                    }
+                }
+            });
+            const humanPlayer = gameData.players[0];
+            const handDiv = document.getElementById('playerHand');
+            handDiv.innerHTML = '';
+            if (humanPlayer && !humanPlayer.eliminated) {
+                humanPlayer.hand.forEach(card => {
+                    const cardEl = createHandCard(card);
+                    handDiv.appendChild(cardEl);
+                });
+            }
+            const hasHeroInHand = humanPlayer && humanPlayer.hand.some(c => c.type === 'hero' && c.name !== 'Loki' && c.name !== 'Reverse Flash');
+            document.getElementById('playBtn').disabled = gameData.phase !== 'playing' || (humanPlayer && humanPlayer.ready) || (humanPlayer && humanPlayer.eliminated) || (gameData.selectedCards.length === 0 && hasHeroInHand);
+        }
+
+        function createHandCard(card) {
+            const div = document.createElement('div');
+            div.className = 'hand-card';
+            if (gameData.selectedCards.some(c => c.id === card.id)) {
+                div.classList.add('selected');
+            }
+            
+            if (card.name === 'Loki') {
+                div.classList.add('hero-card');
+                div.innerHTML = `
+                    <div class="hand-card-content" style="background:linear-gradient(135deg,#8e44ad,#3498db);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <div style="font-size:4.5em;">🎭</div>
+                        <div style="color:white;font-weight:bold;margin-top:15px;font-size:1.4em;">Loki</div>
+                    </div>`;
+                div.style.cursor = 'pointer';
+                div.onclick = useLoki;
+            } else if (card.name === 'Reverse Flash') {
+                div.classList.add('hero-card');
+                const humanPlayer = gameData.players[0];
+                const canUse = gameData.phase === 'result' && !humanPlayer.eliminated && humanPlayer.id !== gameData.roundWinner.id && humanPlayer.played.length > 0;
+                div.innerHTML = `
+                    <div class="hand-card-content" style="background:linear-gradient(135deg,#ff0000,#ff6b6b);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <div style="font-size:4.5em;">⚡</div>
+                        <div style="color:white;font-weight:bold;margin-top:15px;font-size:1.3em;">Reverse</div>
+                    </div>`;
+                div.style.cursor = 'pointer';
+                if (canUse) {
+                    div.classList.add('reverse-flash-active');
+                    div.onclick = useReverseFlashCard;
+                } else {
+                    div.onclick = () => {
+                        if (gameData.phase === 'result') {
+                            if (humanPlayer.id === gameData.roundWinner.id) {
+                                addMessage("❌ أنت الفائز بالفعل!");
+                            } else {
+                                addMessage("❌ ما فيش كروت لتبديلها!");
+                            }
+                        } else {
+                            addMessage("❌ يستخدم بعد الراوند فقط!");
+                        }
+                    };
+                }
+            } else if (card.type === 'hero') {
+                div.classList.add('hero-card');
+                div.innerHTML = `
+                    <div class="hand-card-content">
+                        <img class="hand-card-image" src="${card.img}" alt="${card.name}" onerror="this.style.display='none';">
+                    </div>`;
+                div.onclick = () => toggleCard(card.id);
+            } else if (card.type === 'plus') {
+                div.classList.add('plus-card');
+                div.innerHTML = `<span>${card.name}</span>`;
+                div.onclick = () => toggleCard(card.id);
+            }
+            return div;
+        }
+    </script>
+</body>
+</html>
