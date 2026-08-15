@@ -1,0 +1,11 @@
+node_modules
+server/data
+deploy
+mobile
+tools
+backup
+.git
+*.log
+*.vbs
+*.apk
+cloudflared.exe
