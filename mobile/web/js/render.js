@@ -502,18 +502,7 @@
   }
 
   function renderRulesHint() {
-    var h = q('rules-hint');
-    h.innerHTML =
-      '<div class="rules-box">' +
-        '<div class="rules-sec">2-4 لاعبين • كل واحد يبدأ بـ <b>7 كروت</b> • كل كارت ليه 3 صفات: هجوم / ذكاء / دفاع</div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">مسار الراوند:</b> قبل (لوكي) ← اختيار النوع ← اللعب السري ← الكشف ← بعد (ريفرس فلاش)</div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">لوكي</b>: قبل الراوند، تسرق كارت عشوائي من خصم تختاره. لو كان آخر كارت عنده → يخرج فوراً</div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">نوع الراوند</b> (هجوم/ذكاء/دفاع) بيتغير كل راوند، والأعلى مجموع يكسب <b>+1 نقطة</b></div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">كروت +</b> (100 إلى 500) بتتلعب مع كارت شخصية وبتضيف قيمتها للمجموع</div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">ريفرس فلاش</b>: بعد الراوند، لو خسرت ترجّع كارت من راوندك وتكشّر شخصية من يدك بداله</div>' +
-        '<div class="rules-sec"><b style="color:#ffd700">الفوز:</b> أول واحد يوصل 7 نقاط • لو فاضل واحد بس يكسب • لو الكل خرج → الأعلى نقاط</div>' +
-        '<div class="rules-sec">⚠ اللي يخلّص كروته قبل ما يكسب يدخل — يخرج من اللعبة</div>' +
-      '</div>';
+    // removed per request — no how-to-play box on the main screen
   }
 
   function setStatus(msg, isError) {
